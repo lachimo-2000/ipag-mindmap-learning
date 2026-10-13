@@ -354,3 +354,109 @@ body[data-page="home"] .lm-ov-branch.p2{animation-delay:1.58s}
 @media(max-width:900px){.intro-screen{min-height:520px}.intro-headline{min-height:140px}.intro-sentences{min-height:145px}.lm-case-viewport{height:650px}.lm-overview-viewport{height:590px}}
 @media(max-width:590px){.intro-headline{min-height:126px}.intro-content{padding:25px 20px}.intro-eyebrow{letter-spacing:.13em;font-size:.65rem}.intro-sentences{font-size:.91rem;min-height:150px}.intro-ready{padding:15px 22px;font-size:.84rem}.intro-bottom{font-size:.52rem}.lm-map-tools,.lm-case-toolbar{padding:13px;align-items:flex-start;flex-direction:column}.lm-zoom-tools{width:100%;gap:5px}.lm-zoom-tools button{padding:7px 9px;font-size:.69rem}.lm-case-viewport{height:540px}.lm-overview-viewport{height:530px}.lm-case-actionbar{padding:13px;flex-direction:column;align-items:stretch}.lm-case-actions{width:100%}.lm-case-actions button{flex:1}.journey-heading h1{font-size:1.65rem}}
 @media(prefers-reduced-motion:reduce){.intro-backdrop,.intro-eyebrow,body[data-page="home"] .lm-ov-branch,body[data-page="home"] .lm-ov-root,body[data-page="home"] .sidebar{animation:none!important;transition:none!important}}
+
+/* =============================================================
+   v2.8 · One-sided overview layout, uniform connector hierarchy,
+   non-replaying expansion, and 3-phase cinematic introduction.
+   Uses official IPA Group colors; no additional color palette.
+   ============================================================= */
+/* Uniform paths at the same hierarchy depth (all branches = gold;
+   all description/second-level links = blue). */
+.lm-overview-paths .lm-branch-path,
+.lm-overview-paths .lm-branch-path.p0,
+.lm-overview-paths .lm-branch-path.p1,
+.lm-overview-paths .lm-branch-path.p2,
+.lm-overview-paths .lm-branch-path.p3,
+.lm-overview-paths .lm-branch-path.p4,
+.lm-overview-paths .lm-branch-path.p5{stroke:var(--ipa-gold)}
+.lm-overview-paths .lm-leaf-path{stroke:var(--ipa-blue)}
+/* Only newly expanded detail cards animate. The existing root and
+   first-level branches stay mounted, so expansion never restarts the map. */
+body[data-page="home"] .lm-ov-root,
+body[data-page="home"] .lm-ov-branch{animation:none!important}
+.lm-ov-detail.lm-detail-arrival{animation:lmDetailArrival .26s ease-out both}
+@keyframes lmDetailArrival{from{opacity:0;transform:translate(-50%,-48%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+/* All first-level overview nodes use the same hover action. Official
+   IPA gold background and white typography; shadow aids readability. */
+.lm-ov-branch,.lm-ov-detail{transition:background-color .22s ease,border-color .22s ease,box-shadow .22s ease}
+.lm-ov-branch:hover,.lm-ov-branch:focus-within,
+.lm-ov-detail:hover,.lm-ov-detail:focus-within{background:var(--ipa-gold);border-color:var(--ipa-gold);box-shadow:0 12px 25px #3e5b6c29}
+.lm-ov-branch:hover .lm-ov-label strong,.lm-ov-branch:hover .lm-ov-label small,
+.lm-ov-branch:focus-within .lm-ov-label strong,.lm-ov-branch:focus-within .lm-ov-label small,
+.lm-ov-detail:hover p,.lm-ov-detail:hover button,
+.lm-ov-detail:focus-within p,.lm-ov-detail:focus-within button{
+  color:#fff;text-shadow:0 1px 2px #3e5b6c85
+}
+.lm-ov-branch:hover .lm-ov-expand,.lm-ov-branch:hover .lm-ov-go,
+.lm-ov-branch:focus-within .lm-ov-expand,.lm-ov-branch:focus-within .lm-ov-go{background:#fff;color:var(--ipa-deep);border-color:#fff}
+/* Opening scene: Skip remains visible throughout all intro stages. */
+.intro-screen{min-height:0}
+.intro-skip{position:absolute;z-index:30;top:clamp(16px,3vw,32px);right:clamp(16px,4vw,55px);border:1px solid #ffffffa3;border-radius:999px;background:#203d4bb8;color:#fff;font-size:.86rem;font-weight:800;padding:10px 20px;backdrop-filter:blur(8px);transition:background .2s,transform .2s}
+.intro-skip:hover,.intro-skip:focus-visible{background:var(--ipa-gold);color:var(--ipa-deep);transform:translateY(-1px)}
+/* Three supporting sentences arrive as separate fades, not typewriting. */
+.intro-lead{font-weight:400}
+.intro-sentences p{opacity:0;transform:translateY(18px)}
+.intro-sentences p.line-reveal{animation:introSentenceFade .72s ease-out both}
+@keyframes introSentenceFade{to{opacity:1;transform:translateY(0)}}
+/* Title becomes the actual central mindmap card during the morph. */
+.intro-headline.is-morphing{z-index:15;overflow:hidden;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;align-items:center;background:var(--ipa-deep);border:2px solid var(--ipa-gold);border-radius:22px;padding:12px 18px;box-shadow:0 16px 40px #172c3d69;transition:left .95s cubic-bezier(.2,.7,.18,1),top .95s cubic-bezier(.2,.7,.18,1),width .95s cubic-bezier(.2,.7,.18,1),height .95s cubic-bezier(.2,.7,.18,1),background .95s,border-radius .95s}
+.intro-screen.is-exploring .intro-headline .intro-title{font-size:clamp(1.3rem,2.6vw,2.1rem);min-height:0;line-height:1.2;letter-spacing:-.035em;white-space:nowrap}
+.intro-screen.is-exploring .intro-headline .intro-title-secondary{font-size:clamp(.85rem,1.45vw,1.05rem);min-height:0;line-height:1.45;letter-spacing:0;white-space:nowrap}
+.intro-screen.is-exploring .intro-eyebrow,.intro-screen.is-exploring .intro-sentences,
+.intro-screen.is-exploring .intro-ready,.intro-screen.is-exploring .intro-bottom{
+  opacity:0!important;transform:translateY(14px);pointer-events:none;transition:opacity .52s ease-out,transform .52s ease-out
+}
+.intro-ready{margin-top:28px}
+.intro-morph-map{position:absolute;inset:0;z-index:4;pointer-events:none}
+.intro-morph-map[hidden]{display:none!important}
+.intro-map-root-anchor{position:absolute;left:24%;top:50%;transform:translate(-50%,-50%);width:270px;height:114px;pointer-events:none}
+.intro-map-branches{position:absolute;inset:0;opacity:0;transition:opacity .5s ease}
+.intro-map-branches.is-visible{opacity:1}
+.intro-connection-desktop,.intro-connection-mobile{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.intro-connection-desktop path,.intro-connection-mobile path{fill:none;stroke:var(--ipa-gold);stroke-width:3;stroke-linecap:round;stroke-dasharray:900;stroke-dashoffset:900;transition:stroke-dashoffset 1.5s ease-out}
+.intro-map-branches.is-visible .intro-connection-desktop path,.intro-map-branches.is-visible .intro-connection-mobile path{stroke-dashoffset:0}
+.intro-connection-mobile{display:none}
+.intro-map-branch{position:absolute;left:73%;top:calc(25% + var(--branch) * 25%);transform:translate(-50%,-43%) scale(.92);width:min(365px,31vw);min-height:110px;display:flex;flex-direction:column;gap:5px;justify-content:center;align-items:flex-start;text-align:left;border:2px solid var(--ipa-sand);background:#ffffffed;color:var(--ipa-deep);border-radius:15px;padding:13px 20px;box-shadow:0 14px 26px #172c3d4a;opacity:0;transition:opacity .45s ease-out,transform .5s ease-out;pointer-events:none}
+.intro-map-branch.visible{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.intro-map-branch small{font-size:.66rem;letter-spacing:.08em;font-weight:850;color:var(--ipa-earth)}
+.intro-map-branch strong{font-family:var(--heading);font-weight:800;font-size:clamp(.89rem,1.45vw,1.19rem);line-height:1.3;color:var(--ipa-deep)}
+.intro-map-branch p{font-size:clamp(.74rem,.95vw,.86rem);line-height:1.4;color:var(--ipa-deep);margin:0}
+.intro-start{position:absolute;bottom:clamp(20px,6%,60px);left:50%;transform:translate(-50%,18px);opacity:0;pointer-events:none;white-space:nowrap;border:0;border-radius:999px;background:var(--ipa-gold);color:var(--ipa-deep);font-size:clamp(.86rem,1.2vw,1.02rem);font-weight:850;padding:15px 33px;box-shadow:0 14px 28px #172c3d64;z-index:20;transition:opacity .5s,transform .5s,background .2s}
+.intro-start.visible{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.intro-start:hover{background:var(--ipa-sand-light)}
+@media(max-width:720px){
+  .intro-map-root-anchor{left:50%;top:37%;width:min(245px,68vw);height:98px}
+  .intro-screen.is-exploring .intro-headline .intro-title{font-size:1.48rem}
+  .intro-screen.is-exploring .intro-headline .intro-title-secondary{font-size:.86rem}
+  .intro-map-branch{left:50%;top:calc(55% + var(--branch) * 13.5%);width:min(310px,83vw);min-height:86px;padding:9px 15px;gap:2px}
+  .intro-map-branch strong{font-size:.88rem}
+  .intro-map-branch p{font-size:.72rem}
+  .intro-map-branch small{font-size:.57rem}
+  .intro-connection-desktop{display:none}.intro-connection-mobile{display:block}
+  .intro-start{bottom:1.3%;padding:11px 21px}
+  .intro-content{padding-bottom:55px}
+}
+@media(max-width:450px) and (max-height:690px){
+  .intro-map-root-anchor{top:30%}
+  .intro-map-branch{top:calc(49% + var(--branch) * 13.4%);min-height:72px;padding:7px 12px}
+  .intro-map-branch p{font-size:.67rem}
+  .intro-start{bottom:1%}
+}
+@media(prefers-reduced-motion:reduce){
+  .intro-headline.is-morphing,.intro-map-branch,.intro-sentences p,
+  .intro-connection-desktop path,.intro-connection-mobile path{animation:none!important;transition:none!important}
+}
+/* Explicit positions for compatibility with browsers without calc multiplication. */
+.intro-map-branch:nth-of-type(1){top:25%}
+.intro-map-branch:nth-of-type(2){top:50%}
+.intro-map-branch:nth-of-type(3){top:75%}
+@media(max-width:720px){
+ .intro-map-branch:nth-of-type(1){top:55%}
+ .intro-map-branch:nth-of-type(2){top:68.5%}
+ .intro-map-branch:nth-of-type(3){top:82%}
+}
+@media(max-width:450px) and (max-height:690px){
+ .intro-map-branch:nth-of-type(1){top:49%}
+ .intro-map-branch:nth-of-type(2){top:62.4%}
+ .intro-map-branch:nth-of-type(3){top:75.8%}
+}
