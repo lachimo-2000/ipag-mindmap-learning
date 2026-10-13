@@ -460,3 +460,40 @@ body[data-page="home"] .lm-ov-branch{animation:none!important}
  .intro-map-branch:nth-of-type(2){top:62.4%}
  .intro-map-branch:nth-of-type(3){top:75.8%}
 }
+
+/* v2.9 — IPA Group: stable single-canvas practice, symmetric mindmap layout, semantic feedback */
+.lm-case-paths .lm-case-curve{stroke:var(--ipa-gold);stroke-width:4;stroke-linecap:round;opacity:.95}
+.lm-case-paths .lm-case-subcurve{stroke:var(--ipa-blue);stroke-width:3;stroke-linecap:round;opacity:.92}
+.lm-case-paths .lm-card-curve{stroke:var(--ipa-blue);stroke-width:2.4;stroke-linecap:round;opacity:.8}
+.lm-case-zone{transition:background .2s ease,border-color .2s ease,box-shadow .2s ease;min-height:96px}
+.lm-case-root{z-index:4}
+.lm-free-node{transition:left .29s cubic-bezier(.2,.7,.2,1),top .29s cubic-bezier(.2,.7,.2,1),box-shadow .18s,border-color .18s,background-color .18s;z-index:4;min-height:70px}
+.lm-free-node.correct,.lm-free-node.attached.correct,.lm-free-node.floating.correct{border:3px solid #258052!important;background:#e9f6ee!important;box-shadow:0 0 0 3px #25805236,0 7px 18px #25805218!important}
+.lm-free-node.incorrect,.lm-free-node.attached.incorrect,.lm-free-node.floating.incorrect{border:3px solid #b84442!important;background:#fff1ef!important;box-shadow:0 0 0 3px #b844422e,0 7px 18px #b8444215!important}
+.lm-node-result{margin-left:auto;font-weight:900;font-size:1.15rem;flex:none;color:inherit}
+.lm-free-node.correct .lm-node-result{color:#258052}.lm-free-node.incorrect .lm-node-result{color:#b84442}
+.lm-case-feedback:empty{display:none}.lm-case-review.is-success{border-left:5px solid #258052}.lm-case-review-good{font-size:.83rem;line-height:1.6;color:#355061;margin:6px 0}
+.lm-case-viewport{scroll-behavior:auto}
+/* Level-one sidebar cards are visually distinct from nested lessons. */
+#side-nav .nav-parent,#side-nav .nav-parent.selected{background:#fff;color:var(--ipa-deep);border:1px solid #e5e8e8;box-shadow:0 5px 16px #14273518;transition:background .2s,border-color .2s,transform .2s,box-shadow .2s}
+#side-nav .nav-parent:hover{background:#fff9ec;border-color:var(--ipa-gold);transform:translateX(2px);box-shadow:0 7px 22px #14273529}
+#side-nav .nav-parent-icon{background:var(--ipa-deep);color:#fff}
+#side-nav .nav-parent.selected .nav-parent-icon{background:var(--ipa-gold);color:var(--ipa-deep)}
+#side-nav .nav-parent-copy strong{color:var(--ipa-deep)}
+#side-nav .nav-parent-copy small{color:#5b7585}
+#side-nav .nav-parent .nav-chevron{color:var(--ipa-deep)}
+#side-nav .nav-children{overflow:hidden;animation:ipaSidebarOpen .34s cubic-bezier(.2,.7,.2,1) both;transform-origin:top}
+#side-nav .nav-child{transition:background .2s,padding-left .23s,color .2s}
+#side-nav .nav-child:hover{padding-left:15px;background:#ffffff24}
+#side-nav .nav-child.active{border-left:3px solid var(--ipa-gold);background:#ffffff21}
+#side-nav .nav-group{margin-bottom:12px}
+@keyframes ipaSidebarOpen{from{opacity:.12;transform:translateY(-9px) scaleY(.97)}to{opacity:1;transform:none}}
+/* GitMind CTA: visible, gentle halo pulse, accessible on reduced motion. */
+.m3-hero .gitmind-attention{position:relative;isolation:isolate;background:var(--ipa-gold)!important;color:var(--ipa-deep)!important;border:2px solid #e4d5b6!important;box-shadow:0 5px 22px #c4aa7870;animation:gitmindCTAGlow 3.8s ease-in-out infinite}
+.m3-hero .gitmind-attention:after{content:"";position:absolute;inset:-8px;border:2px solid var(--ipa-sand-light);border-radius:14px;pointer-events:none;animation:gitmindCTAOutline 3.8s ease-in-out infinite}
+.m3-hero .gitmind-attention:hover{background:var(--ipa-cream)!important;transform:translateY(-2px);animation-play-state:paused}
+@keyframes gitmindCTAGlow{0%,55%,100%{box-shadow:0 5px 17px #c4aa784d}68%{box-shadow:0 0 0 8px #c4aa782a,0 7px 26px #c4aa786c}}
+@keyframes gitmindCTAOutline{0%,50%,100%{opacity:0;transform:scale(1)}70%{opacity:.75;transform:scale(1.04)}90%{opacity:0;transform:scale(1.08)}}
+@media(prefers-reduced-motion:reduce){.lm-free-node,#side-nav .nav-parent,#side-nav .nav-children,#side-nav .nav-child,.m3-hero .gitmind-attention,.m3-hero .gitmind-attention:after{animation:none!important;transition:none!important}}
+.lm-mobile-jump{display:none}
+@media(max-width:650px){.lm-mobile-jump{display:inline-flex!important}.lm-case-viewport{height:570px}}
