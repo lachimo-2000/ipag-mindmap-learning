@@ -4,8 +4,7 @@ window.LEARNING_CONTENT = {
     {id:'meeting',num:'01',icon:'◷',title:'Ghi chú cuộc họp',subtitle:'Phân loại ghi chú để team tìm nhanh điều đã chốt, việc cần làm và điểm cần theo dõi.'},
     {id:'problem',num:'02',icon:'⌕',title:'Tìm nguyên nhân',subtitle:'Phân biệt dữ kiện với giả thuyết và xác định bằng chứng cần thu thập.'},
     {id:'project',num:'03',icon:'◇',title:'Bắt đầu dự án',subtitle:'Làm rõ mục tiêu, phạm vi, các bên liên quan và phân rã nhóm công việc.'},
-    {id:'picture',num:'04',icon:'▣',title:'Giải thích toàn cảnh',subtitle:'Giữ tầng tổng quan gọn, đẩy lịch sử làm việc xuống tầng chi tiết để tra cứu.'},
-    {id:'decision',num:'05',icon:'⇄',title:'Cùng ra quyết định',subtitle:'Đưa các góc nhìn lên cùng một bức tranh để so sánh theo tiêu chí.'}
+    {id:'decision',num:'04',icon:'⇄',title:'Cùng ra quyết định',subtitle:'Đưa các góc nhìn lên cùng một bức tranh để so sánh theo tiêu chí.'}
   ],
   module2Cases: [
     {
@@ -98,34 +97,10 @@ window.LEARNING_CONTENT = {
       summary:'Làm rõ mục tiêu, phạm vi, các bên và nhóm công việc trước khi phân rã đầu việc.'
     },
     {
-      id:'picture',
-      num:'2.4',
-      title:'Giải thích toàn cảnh',
-      label:'CASE 4',
-      intro:'Bạn có 30 giây cập nhật dự án LMS cho lãnh đạo. Người nghe cần biết dự án đang ở đâu, điều gì ảnh hưởng kết quả và cần quyết định gì.',
-      task:'Chọn thông tin ở tầng tổng quan; chuyển lịch sử làm việc xuống tầng chi tiết để tra cứu.',
-      root:'Cập nhật dự án LMS',
-      narrator:'Bình: “Tinh gọn không có nghĩa là xóa mất thông tin; mình chỉ đặt nó ở tầng phù hợp.”',
-      type:'sort',
-      zones:[
-        {id:'Tổng quan',label:'Tổng quan',hint:'Điều người nghe cần nắm trong 30 giây.'},
-        {id:'Chi tiết để tra cứu',label:'↳ Chi tiết để tra cứu',hint:'Thông tin vẫn giữ lại nhưng không đưa lên tầng tổng quan.'}
-      ],
-      cards:[
-        {text:'Đã xong cấu hình, đang kiểm thử.',correct:'Tổng quan',why:'Cho biết tiến độ hiện tại.'},
-        {text:'Thiếu dữ liệu để chuyển đổi.',correct:'Tổng quan',why:'Đây là rủi ro ảnh hưởng kết quả.'},
-        {text:'Cần phê duyệt lộ trình triển khai thí điểm.',correct:'Tổng quan',why:'Đây là quyết định đang cần từ người nhận.'},
-        {text:'Kiểm thử hoàn tất ngày 20/11.',correct:'Tổng quan',why:'Đây là mốc tiếp theo.'},
-        {text:'17 bình luận chỉnh sửa của team.',correct:'Chi tiết để tra cứu',why:'Thông tin hỗ trợ khi cần tra cứu sâu.'},
-        {text:'Lịch sử các email nhắc việc.',correct:'Chi tiết để tra cứu',why:'Giữ lại để tìm lại khi cần, không cần đưa hết lên tầng tổng quan.'}
-      ],
-      summary:'Thiết kế map theo nhu cầu của người nhận. Tinh gọn không có nghĩa là xóa mất thông tin.'
-    },
-    {
       id:'decision',
-      num:'2.5',
+      num:'2.4',
       title:'Cùng ra quyết định',
-      label:'CASE 5',
+      label:'CASE 4',
       intro:'L&D, Finance và Business cân nhắc học trực tiếp, online hoặc kết hợp. Các bên có ưu tiên khác nhau.',
       task:'Ghép góc nhìn của từng bên với tiêu chí cần so sánh.',
       root:'Hình thức đào tạo',
