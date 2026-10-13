@@ -22,7 +22,7 @@
       <div class="sidebar-bottom"><strong>Học để ứng dụng</strong><small>Mỗi sơ đồ, một bước tiến trong công việc.</small><button class="sidebar-reset" id="reset-progress">Đặt lại tiến độ</button></div>
     </aside>
     <div class="app-main">
-      <header class="topbar"><button id="menu-toggle" class="icon-btn mobile-only" aria-label="Mở menu" aria-expanded="false" aria-controls="sidebar">☰</button><button class="back-link" data-global-action="back" hidden>← <span>Quay lại trang trước</span></button><nav class="breadcrumb" id="breadcrumb" aria-label="Đường dẫn trang"></nav><div class="top-actions"><span class="save-hint" id="save-indicator">● Tiến độ trên thiết bị</span></div></header>
+      <header class="topbar"><button type="button" id="desktop-sidebar-toggle" class="sidebar-desktop-toggle" data-action="toggle-sidebar" aria-label="Ẩn thanh menu" aria-controls="sidebar" aria-expanded="true">☰</button><button id="menu-toggle" class="icon-btn mobile-only" aria-label="Mở menu" aria-expanded="false" aria-controls="sidebar">☰</button><button class="back-link" data-global-action="back" hidden>← <span>Quay lại trang trước</span></button><nav class="breadcrumb" id="breadcrumb" aria-label="Đường dẫn trang"></nav><div class="top-actions"><div id="journey-progress" class="journey-progress" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-label="Tiến độ học phần"></div><span class="save-hint" id="save-indicator">● Tiến độ trên thiết bị</span></div></header>
       <main id="main" tabindex="-1"><div id="screen" class="page-enter"></div></main>
       <footer class="app-footer"><span>IPA GROUP · MINDMAP LEARNING EXPERIENCE</span><span>Tư duy rõ ràng · Thực hành mỗi ngày</span></footer>
     </div>
@@ -36,6 +36,7 @@
   <script src="js/quiz-module1.js"></script>
   <script src="js/gitmind-overview.js"></script>
   <script src="js/learning-maps.js"></script>
+  <script src="js/gamification.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
