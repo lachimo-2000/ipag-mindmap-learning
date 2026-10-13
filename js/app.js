@@ -49,7 +49,9 @@ function renderNav(){
     return `<div class="nav-subgroup"><button class="nav-subgroup-toggle" data-global-action="toggle-guide-group" data-id="${id}" aria-expanded="${isOpen}">${esc(title)} <span>${isOpen?'−':'+'}</span></button>${isOpen?G.slice(from,to).map((v,j)=>`<button class="nav-child ${UI.page==='chapter'&&UI.chapter===v.id?'active':''}" data-global-action="open-chapter" data-id="${v.id}"><span class="nav-child-num">3.${from+j+1}</span><span>${esc(v.title)}</span>${P.chapters[v.id]?'<span class="nav-done">✓</span>':''}</button>`).join(''):''}</div>`;
   }).join('');
   const m3 = `<div class="nav-group"><button class="nav-parent ${['m3','chapter'].includes(UI.page)?'selected':''}" data-global-action="toggle-nav" data-id="m3" aria-expanded="${UI.navOpen.m3?'true':'false'}"><span class="nav-parent-icon">03</span><span class="nav-parent-copy"><strong>HỌC GITMIND</strong><small>${G.length} bài hướng dẫn thao tác</small></span><span class="nav-chevron">⌄</span></button>${UI.navOpen.m3?`<div class="nav-children"><button class="nav-child ${UI.page==='m3'?'active':''}" data-global-action="open-m3"><span>Tổng quan Module 3</span></button>${guideNav}</div>`:''}</div>`;
+  const previousScroll=$('#sidebar').scrollTop;
   $('#side-nav').innerHTML = navGroup('m1','VÌ SAO & KHI NÀO','Video và câu hỏi',m1) + navGroup('m2','THỰC HÀNH MINDMAP','5 case tương tác',m2) + m3;
+  $('#sidebar').scrollTop=previousScroll;
 }
 function getCase(id){return C.module2Cases.find(x=>x.id===id);}
 function labState(id){return (P.labs[id] ||= {step:0,steps:{},complete:false});}
@@ -166,7 +168,7 @@ function m2CompleteView(){
 }
 function m3View(){
   return shell('Module 3 — Học GitMind để thực hành trực tiếp','Khám phá nội dung bằng sơ đồ: mở nhánh để xem bài, cuộn chuột để phóng to/thu nhỏ và kéo vùng trống để di chuyển.','HỌC PHẦN 03 · HƯỚNG DẪN GITMIND')+
-  `<section class="m3-hero card"><div class="m3-hero-bg" style="background-image:url('assets/images/gitmind-homepage.png')"></div><div class="m3-hero-overlay"></div><div class="m3-hero-content"><span class="eyebrow" style="color:var(--ipa-sand-light)">THỰC HÀNH TRỰC TIẾP</span><h2 style="margin:10px 0 12px;color:#fff">Mở GitMind và thực hành theo từng bài</h2><p style="color:#fff;max-width:700px">Truy cập GitMind, đăng nhập và thử thao tác trên giao diện thật. Bên dưới là mindmap 22 bài hướng dẫn tiếng Việt. Chọn một nhóm để khám phá từng bài.</p><div class="btn-row"><a class="primary external-link" href="https://gitmind.com/" target="_blank" rel="noopener noreferrer">Mở trang chủ GitMind ↗</a> ${btn('Bắt đầu bài 3.1 →','start-chapter','outline')}</div></div></section>
+  `<section class="m3-hero card"><div class="m3-hero-bg" style="background-image:url('assets/images/gitmind-homepage.png')"></div><div class="m3-hero-overlay"></div><div class="m3-hero-content"><span class="eyebrow" style="color:var(--ipa-sand-light)">THỰC HÀNH TRỰC TIẾP</span><h2 style="margin:10px 0 12px;color:#fff">Mở GitMind và thực hành theo từng bài</h2><p style="color:#fff;max-width:700px">Truy cập GitMind, đăng nhập và thử thao tác trên giao diện thật. Bên dưới là mindmap 22 bài hướng dẫn tiếng Việt. Chọn một nhóm để khám phá từng bài.</p><div class="btn-row"><a class="primary external-link gitmind-attention" href="https://gitmind.com/" target="_blank" rel="noopener noreferrer">Truy cập GitMind ↗</a> ${btn('Bắt đầu bài 3.1 →','start-chapter','outline')}</div></div></section>
   <div class="m3-map-section item-space"><div id="gm-map"><p class="note">Đang khởi tạo sơ đồ nội dung…</p></div><p class="m3-map-help">Hỗ trợ chuột, cảm ứng và bàn phím: dùng các nút +/- hoặc con lăn để thu/phóng; kéo vùng trống để di chuyển; chọn nhánh để mở hoặc thu gọn; chọn bài để xem hướng dẫn.</p></div>`;
 }
 function chapterView(){
@@ -196,14 +198,14 @@ function render(){
     const obj=getCase(UI.caseId),c=getCurrentStage(obj),st=c.state;
     window.LearningMaps?.mountCase($('#case-mindmap'),{
       stage:c.stage,caseObj:obj,state:st,selected:UI.selectedCard,checked:!!st.checked,solved:stageSolved(c.stage,st),stepIndex:c.idx,stepCount:c.count,
-      onSelect:i=>{UI.selectedCard=i;render();},
+      onSelect:i=>{UI.selectedCard=i;window.LearningMaps?.refreshCase({selected:i});},
       onPlace:(i,zone)=>{
         const itemCount=c.stage.type==='multi'?c.stage.options.length:c.stage.cards.length;
         if(i<0||i>=itemCount)return;
         st.placements ||= {};
         if(zone==='__bank__')delete st.placements[i];else st.placements[i]=zone;
         if(c.stage.type==='multi')st.selected=Object.keys(st.placements).filter(k=>st.placements[k]==='Cần thu thập').map(Number);
-        st.checked=false;UI.selectedCard=null;save();render();
+        st.checked=false;UI.selectedCard=null;save();window.LearningMaps?.refreshCase({selected:null,checked:false});
       },
       onCheck:()=>action('check-stage',{}),onReset:()=>action('reset-stage',{}),
       onNext:()=>action('next-stage',{}),onPrev:()=>action('prev-stage',{}),onFinish:()=>action('finish-case',{})
@@ -238,7 +240,7 @@ function action(a,el){
     case 'reset-stage': {
       const caseObj=getCase(UI.caseId); const current=getCurrentStage(caseObj);
       current.state.placements={}; if(current.stage.type==='multi')current.state.selected=[];
-      current.state.checked=false; UI.selectedCard=null; save(); render(); return;
+      current.state.checked=false; UI.selectedCard=null; save(); window.LearningMaps?.refreshCase({selected:null,checked:false}); return;
     }
     case 'check-stage': {
       const caseObj=getCase(UI.caseId); const current=getCurrentStage(caseObj); current.state.checked=true; save(); render(); message(stageSolved(current.stage,current.state)?'Bạn đã sắp xếp đúng':'Đã có phản hồi để bạn chỉnh lại'); return;
@@ -273,10 +275,11 @@ $('#map-dialog').addEventListener('close',()=>{document.body.classList.remove('m
 $('#media-dialog').addEventListener('click',e=>{if(e.target.matches('#media-dialog')) closeMedia(); const el=e.target.closest('[data-global-action]'); if(el?.dataset.globalAction==='close-media') closeMedia();});
 $('#media-dialog').addEventListener('close',()=>{document.body.classList.remove('media-open'); mediaOpener?.focus(); mediaOpener=null;});
 $('#screen').addEventListener('click',e=>{const el=e.target.closest('[data-action]'); if(el&&!el.disabled) action(el.dataset.action,el);});
-$('#screen').addEventListener('dragstart',e=>{const chip=e.target.closest('[data-draggable-card]'); if(!chip) return; UI.selectedCard=Number(chip.dataset.draggableCard); e.dataTransfer?.setData('text/plain','card:'+chip.dataset.draggableCard); e.dataTransfer.effectAllowed='move'; chip.classList.add('dragging');});
-$('#screen').addEventListener('dragover',e=>{const z=e.target.closest('[data-drop-zone]'); if(z){e.preventDefault(); z.classList.add('drag-over');}});
-$('#screen').addEventListener('dragleave',e=>{const z=e.target.closest('[data-drop-zone]'); if(z && !z.contains(e.relatedTarget)) z.classList.remove('drag-over');});
+$('#screen').addEventListener('dragstart',e=>{if(e.target.closest('.lm-case-workspace'))return;const chip=e.target.closest('[data-draggable-card]'); if(!chip) return; UI.selectedCard=Number(chip.dataset.draggableCard); e.dataTransfer?.setData('text/plain','card:'+chip.dataset.draggableCard); e.dataTransfer.effectAllowed='move'; chip.classList.add('dragging');});
+$('#screen').addEventListener('dragover',e=>{if(e.target.closest('.lm-case-workspace'))return;const z=e.target.closest('[data-drop-zone]'); if(z){e.preventDefault(); z.classList.add('drag-over');}});
+$('#screen').addEventListener('dragleave',e=>{if(e.target.closest('.lm-case-workspace'))return;const z=e.target.closest('[data-drop-zone]'); if(z && !z.contains(e.relatedTarget)) z.classList.remove('drag-over');});
 $('#screen').addEventListener('drop',e=>{
+  if(e.target.closest('.lm-case-workspace'))return;
   const zone=e.target.closest('[data-drop-zone]'); if(!zone) return; e.preventDefault(); zone.classList.remove('drag-over'); const raw=e.dataTransfer?.getData('text/plain')||''; const idx=raw.startsWith('card:')?Number(raw.slice(5)):UI.selectedCard; const caseObj=getCase(UI.caseId); if(!caseObj) return; const current=getCurrentStage(caseObj); if(!Number.isInteger(idx)) return;
   if(zone.dataset.dropZone==='__bank__') delete current.state.placements[idx]; else current.state.placements[idx]=zone.dataset.dropZone; current.state.checked=false; UI.selectedCard=null; save(); render();
 });
