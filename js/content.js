@@ -1,66 +1,147 @@
-/* Content layer: edit lesson copy here; the app logic lives in app.js. */
 window.LEARNING_CONTENT = {
-  programName: 'MindMap as a Skill',
+  programName: 'MindMap trong công việc',
   scenarios: [
-    {id:'meeting',num:'01',icon:'◷',title:'Ghi chú cuộc họp',subtitle:'Giữ lại ý chính khi mọi người đang trao đổi',label:'MEETING NOTES',principle:'Ghi lại ý nghĩa và kết quả, không chép nguyên cuộc trò chuyện.',outcome:'Tổ chức trao đổi theo chủ đề, quyết định, hành động và câu hỏi mở.'},
-    {id:'problem',num:'02',icon:'⌕',title:'Tìm nguyên nhân',subtitle:'Mở rộng giả thuyết trước khi vội kết luận',label:'PROBLEM EXPLORATION',principle:'Mở rộng nguyên nhân có thể xảy ra, sau đó kiểm chứng.',outcome:'Phân biệt dữ kiện và giả thuyết, xác định điều cần xác minh.'},
-    {id:'project',num:'03',icon:'◇',title:'Bắt đầu dự án',subtitle:'Thống nhất mục tiêu, phạm vi và cấu trúc công việc',label:'PROJECT FRAMING',principle:'Thống nhất mục tiêu và phạm vi trước khi đi vào các task.',outcome:'Phân chia dự án thành các nhánh cấp cao có ý nghĩa.'},
-    {id:'picture',num:'04',icon:'▣',title:'Giải thích toàn cảnh',subtitle:'Để người khác hiểu nhanh điều quan trọng',label:'BIG PICTURE',principle:'Thiết kế sơ đồ cho người đọc, không chỉ cho người tạo.',outcome:'Loại nhiễu và nhấn mạnh điều người nhận cần biết.'},
-    {id:'decision',num:'05',icon:'⇄',title:'Cùng ra quyết định',subtitle:'Đặt lựa chọn, tiêu chí, góc nhìn trên cùng bức tranh',label:'SHARED DECISIONS',principle:'Làm rõ cấu trúc quyết định trước khi chọn phương án.',outcome:'Tách phương án, tiêu chí, bằng chứng và góc nhìn.'}
+    {id:'meeting',num:'01',icon:'◷',title:'Ghi chú cuộc họp',subtitle:'Phân loại ghi chú để team tìm nhanh điều đã chốt, việc cần làm và điểm cần theo dõi.'},
+    {id:'problem',num:'02',icon:'⌕',title:'Tìm nguyên nhân',subtitle:'Phân biệt dữ kiện với giả thuyết và xác định bằng chứng cần thu thập.'},
+    {id:'project',num:'03',icon:'◇',title:'Bắt đầu dự án',subtitle:'Làm rõ mục tiêu, phạm vi, các bên liên quan và phân rã nhóm công việc.'},
+    {id:'picture',num:'04',icon:'▣',title:'Giải thích toàn cảnh',subtitle:'Giữ tầng tổng quan gọn, đẩy lịch sử làm việc xuống tầng chi tiết để tra cứu.'},
+    {id:'decision',num:'05',icon:'⇄',title:'Cùng ra quyết định',subtitle:'Đưa các góc nhìn lên cùng một bức tranh để so sánh theo tiêu chí.'}
   ],
-  quiz: [
-    {q:'Trong cuộc họp có nhiều thông tin xuất hiện liên tục. MindMap hữu ích nhất khi nào?',options:['Cần chép nguyên văn mọi câu nói','Cần tổ chức chủ đề, quyết định và đầu việc ngay khi trao đổi','Cần thay thế hoàn toàn biên bản chính thức'],answer:1,why:'MindMap giúp nhìn cấu trúc trao đổi, nhưng không mặc định thay thế biên bản được yêu cầu theo quy định.'},
-    {q:'Khi công việc bị trễ nhưng chưa rõ nguyên nhân, hành động hợp lý đầu tiên là gì?',options:['Chọn ngay một người chịu trách nhiệm','Vẽ các nguyên nhân có thể xảy ra và xác định dữ kiện cần kiểm chứng','Làm đẹp các nhánh để dễ thuyết trình'],answer:1,why:'Sơ đồ giúp mở rộng và kiểm tra giả thuyết; không tự chứng minh nguyên nhân.'},
-    {q:'Khi mới khởi động một dự án, nên ưu tiên những nhánh nào?',options:['Mục tiêu, phạm vi, các bên liên quan và nhóm công việc','Chỉ liệt kê các việc nhỏ cần làm hôm nay','Chỉ tập trung deadline và màu sắc'],answer:0,why:'Làm rõ bức tranh cấp cao trước rồi mới phân rã việc chi tiết.'},
-    {q:'Khi cần cập nhật lãnh đạo trong 30 giây, điều gì quan trọng nhất?',options:['Giữ lại tất cả node đã tạo','Tăng số đường nối và màu sắc','Chọn lọc cấu trúc theo câu hỏi của người nhận'],answer:2,why:'Sơ đồ truyền đạt cần tinh gọn, không phải bản sao đầy đủ của working map.'},
-    {q:'Khi nhóm cần cùng quyết định giữa các phương án, MindMap hỗ trợ tốt nhất điều gì?',options:['Tự động đưa ra phương án đúng duy nhất','Làm rõ lựa chọn, tiêu chí, bằng chứng và bất đồng','Loại bỏ nhu cầu xem dữ liệu'],answer:1,why:'MindMap hỗ trợ định hình quyết định; khi cần so sánh trade-off có thể dùng Decision Matrix.'}
-  ],
-  micros:[
-    {id:'01',title:'Khởi tạo MindMap',skill:'Central Topic',desc:'Tạo sơ đồ và đặt chủ đề trung tâm có ý nghĩa.',action:'Đổi tên chủ đề trung tâm',seconds:'30–40 giây',file:'micro-01.mp4'},
-    {id:'02',title:'Xây dựng cấu trúc',skill:'Main & Sub Branch',desc:'Tạo nhánh chính và nhánh con.',action:'Thêm ít nhất 2 nhánh chính và 1 nhánh con',seconds:'40–60 giây',file:'micro-02.mp4'},
-    {id:'03',title:'Sắp xếp lại các node',skill:'Move & Restructure',desc:'Di chuyển node để chỉnh cấu trúc.',action:'Chuyển node sang nhóm phù hợp',seconds:'40–60 giây',file:'micro-03.mp4'},
-    {id:'04',title:'Thể hiện mối quan hệ',skill:'Relationship',desc:'Nối các node bằng mối quan hệ có ý nghĩa.',action:'Tạo liên kết và đặt nhãn',seconds:'40–50 giây',file:'micro-04.mp4'},
-    {id:'05',title:'Làm rõ thông tin',skill:'Visual Clarity',desc:'Dùng tín hiệu thị giác có mục đích.',action:'Làm nổi bật Decision và Action',seconds:'45–60 giây',file:'micro-05.mp4'},
-    {id:'06',title:'Chia sẻ và xuất bản',skill:'Share & Export',desc:'Chọn quyền truy cập theo mục đích.',action:'Thiết lập quyền chỉnh sửa và sao chép link mô phỏng',seconds:'30–45 giây',file:'micro-06.mp4'}
+  module2Cases: [
+    {
+      id:'meeting',
+      num:'2.1',
+      title:'Ghi chú cuộc họp',
+      label:'CASE 1',
+      intro:'An và Bình đang họp chuẩn bị workshop. Team đã thống nhất ngân sách, giao việc và ghi nhận những điểm chưa rõ.',
+      task:'Phân loại ghi chú để mọi người tìm nhanh kết quả cuộc họp.',
+      root:'Chuẩn bị workshop',
+      narrator:'An: “Mình cần một map để sau cuộc họp ai cũng nhìn ra điều đã chốt, việc phải làm và điểm cần theo dõi.”',
+      type:'sort',
+      zones:[
+        {id:'Quyết định',label:'Quyết định',hint:'Điều đã được thống nhất.'},
+        {id:'Hành động',label:'Hành động',hint:'Việc cần làm, có người phụ trách hoặc thời hạn.'},
+        {id:'Câu hỏi mở',label:'Câu hỏi mở',hint:'Thông tin chưa được xác nhận.'},
+        {id:'Rủi ro',label:'Rủi ro',hint:'Khả năng có thể ảnh hưởng kế hoạch.'}
+      ],
+      cards:[
+        {text:'Team đã duyệt ngân sách 15 triệu đồng.',correct:'Quyết định',why:'Đây là điều đã được thống nhất trong cuộc họp.'},
+        {text:'Mai gửi thư mời trước 15:00 thứ Sáu.',correct:'Hành động',why:'Có việc cần làm, người phụ trách và thời hạn.'},
+        {text:'Chưa rõ có cần IT hỗ trợ buổi học không.',correct:'Câu hỏi mở',why:'Đây là thông tin chưa được xác nhận.'},
+        {text:'Diễn giả có thể đổi lịch sát ngày tổ chức.',correct:'Rủi ro',why:'Đây là khả năng có thể ảnh hưởng kế hoạch.'}
+      ],
+      summary:'Ghi chú hữu ích cần làm rõ vai trò của thông tin để team biết điều đã chốt, việc cần làm và điểm cần theo dõi.'
+    },
+    {
+      id:'problem',
+      num:'2.2',
+      title:'Tìm nguyên nhân',
+      label:'CASE 2',
+      intro:'Báo cáo nộp muộn trong ba kỳ gần nhất. Nhật ký xác nhận mẫu báo cáo đổi từ tháng trước. Team đưa ra nhiều khả năng nhưng chưa xác minh nguyên nhân.',
+      task:'Phân biệt dữ kiện với giả thuyết, sau đó chọn bằng chứng cần thu thập.',
+      root:'Báo cáo gửi trễ',
+      narrator:'Bình: “Map giúp nhóm tách điều mình đã biết khỏi điều mình chỉ đang phỏng đoán.”',
+      type:'multi-stage',
+      stages:[
+        {
+          type:'sort',
+          title:'Bước 1 · Tách dữ kiện và giả thuyết',
+          zones:[
+            {id:'Dữ kiện',label:'Dữ kiện',hint:'Hiện tượng hay thay đổi đã được xác nhận.'},
+            {id:'Giả thuyết',label:'Giả thuyết',hint:'Cách giải thích cần kiểm chứng.'}
+          ],
+          cards:[
+            {text:'Ba kỳ gần nhất đều nộp báo cáo muộn.',correct:'Dữ kiện',why:'Đây là hiện tượng đã quan sát được.'},
+            {text:'Mẫu báo cáo thay đổi từ tháng trước.',correct:'Dữ kiện',why:'Đây là thay đổi đã được xác nhận; chưa chứng minh nó gây trễ.'},
+            {text:'Có thể dữ liệu đầu vào đến quá muộn.',correct:'Giả thuyết',why:'Đây là cách giải thích cần kiểm chứng.'},
+            {text:'Có thể chưa rõ người chịu trách nhiệm tổng hợp.',correct:'Giả thuyết',why:'Cần kiểm tra phân công thực tế.'}
+          ]
+        },
+        {
+          type:'multi',
+          title:'Bước 2 · Chọn bằng chứng cần thu thập',
+          question:'Bằng chứng nào giúp kiểm chứng hai giả thuyết?',
+          options:[
+            {text:'Thời điểm yêu cầu và nhận dữ liệu.',correct:true,why:'Mốc thời gian giúp kiểm tra giả thuyết dữ liệu đầu vào đến muộn.'},
+            {text:'Phân công và các mốc xử lý thực tế.',correct:true,why:'Thông tin này giúp kiểm tra trách nhiệm tổng hợp và tiến độ xử lý.'},
+            {text:'Màu dùng trong báo cáo.',correct:false,why:'Màu trình bày không giúp kiểm chứng nguyên nhân nộp báo cáo trễ.'}
+          ]
+        }
+      ],
+      summary:'Mindmap giúp tổ chức giả thuyết và xác định điều cần kiểm chứng. Sơ đồ không tự chứng minh nguyên nhân.'
+    },
+    {
+      id:'project',
+      num:'2.3',
+      title:'Bắt đầu dự án',
+      label:'CASE 3',
+      intro:'Team chuẩn bị thí điểm chương trình chia sẻ kiến thức tại một đơn vị. Cần thống nhất khung dự án trước khi làm các việc nhỏ.',
+      task:'Đặt ý định hướng vào nhánh chính; đặt đầu việc cụ thể vào nhánh con.',
+      root:'Chia sẻ kiến thức',
+      narrator:'An: “Mình cần khung dự án trước, rồi mới phân rã thành các đầu việc nhỏ.”',
+      type:'sort',
+      zones:[
+        {id:'Mục tiêu',label:'Mục tiêu',hint:'Vì sao làm chương trình này?'},
+        {id:'Phạm vi',label:'Phạm vi',hint:'Làm tới đâu, chưa làm tới đâu?'},
+        {id:'Các bên liên quan',label:'Các bên liên quan',hint:'Ai tham gia và ai hỗ trợ?'},
+        {id:'Nhóm công việc',label:'Nhóm công việc',hint:'Nhóm việc cấp cao.'},
+        {id:'Truyền thông',label:'↳ Truyền thông',hint:'Nhánh con bên trong nhóm công việc.'}
+      ],
+      cards:[
+        {text:'Tăng chia sẻ kiến thức giữa các thành viên.',correct:'Mục tiêu',why:'Đây là mục tiêu của chương trình.'},
+        {text:'Thí điểm trong một đơn vị, chưa triển khai toàn tập đoàn.',correct:'Phạm vi',why:'Đây là giới hạn triển khai.'},
+        {text:'Lan là đầu mối; trưởng đơn vị hỗ trợ và duyệt kế hoạch.',correct:'Các bên liên quan',why:'Đây là thông tin về các bên tham gia và vai trò.'},
+        {text:'Truyền thông chương trình.',correct:'Nhóm công việc',why:'Đây là một nhóm công việc cấp cao.'},
+        {text:'Thiết kế banner giới thiệu.',correct:'Truyền thông',why:'Đây là đầu việc cụ thể nằm trong nhánh Truyền thông.'},
+        {text:'Gửi thư mời tham gia chương trình.',correct:'Truyền thông',why:'Đây là đầu việc cụ thể thuộc nhánh Truyền thông.'}
+      ],
+      summary:'Làm rõ mục tiêu, phạm vi, các bên và nhóm công việc trước khi phân rã đầu việc.'
+    },
+    {
+      id:'picture',
+      num:'2.4',
+      title:'Giải thích toàn cảnh',
+      label:'CASE 4',
+      intro:'Bạn có 30 giây cập nhật dự án LMS cho lãnh đạo. Người nghe cần biết dự án đang ở đâu, điều gì ảnh hưởng kết quả và cần quyết định gì.',
+      task:'Chọn thông tin ở tầng tổng quan; chuyển lịch sử làm việc xuống tầng chi tiết để tra cứu.',
+      root:'Cập nhật dự án LMS',
+      narrator:'Bình: “Tinh gọn không có nghĩa là xóa mất thông tin; mình chỉ đặt nó ở tầng phù hợp.”',
+      type:'sort',
+      zones:[
+        {id:'Tổng quan',label:'Tổng quan',hint:'Điều người nghe cần nắm trong 30 giây.'},
+        {id:'Chi tiết để tra cứu',label:'↳ Chi tiết để tra cứu',hint:'Thông tin vẫn giữ lại nhưng không đưa lên tầng tổng quan.'}
+      ],
+      cards:[
+        {text:'Đã xong cấu hình, đang kiểm thử.',correct:'Tổng quan',why:'Cho biết tiến độ hiện tại.'},
+        {text:'Thiếu dữ liệu để chuyển đổi.',correct:'Tổng quan',why:'Đây là rủi ro ảnh hưởng kết quả.'},
+        {text:'Cần phê duyệt lộ trình triển khai thí điểm.',correct:'Tổng quan',why:'Đây là quyết định đang cần từ người nhận.'},
+        {text:'Kiểm thử hoàn tất ngày 20/11.',correct:'Tổng quan',why:'Đây là mốc tiếp theo.'},
+        {text:'17 bình luận chỉnh sửa của team.',correct:'Chi tiết để tra cứu',why:'Thông tin hỗ trợ khi cần tra cứu sâu.'},
+        {text:'Lịch sử các email nhắc việc.',correct:'Chi tiết để tra cứu',why:'Giữ lại để tìm lại khi cần, không cần đưa hết lên tầng tổng quan.'}
+      ],
+      summary:'Thiết kế map theo nhu cầu của người nhận. Tinh gọn không có nghĩa là xóa mất thông tin.'
+    },
+    {
+      id:'decision',
+      num:'2.5',
+      title:'Cùng ra quyết định',
+      label:'CASE 5',
+      intro:'L&D, Finance và Business cân nhắc học trực tiếp, online hoặc kết hợp. Các bên có ưu tiên khác nhau.',
+      task:'Ghép góc nhìn của từng bên với tiêu chí cần so sánh.',
+      root:'Hình thức đào tạo',
+      narrator:'An: “MindMap giúp đưa các ưu tiên lên cùng một bức tranh, nhưng vẫn cần thêm dữ liệu để so sánh.”',
+      type:'sort',
+      zones:[
+        {id:'Chi phí',label:'Chi phí',hint:'Tiêu chí nhìn từ góc độ tài chính.'},
+        {id:'Thời gian & lịch làm việc',label:'Thời gian & lịch làm việc',hint:'Tiêu chí gắn với vận hành và lịch học.'},
+        {id:'Trải nghiệm học viên',label:'Trải nghiệm học viên',hint:'Tiêu chí gắn với thực hành và áp dụng.'}
+      ],
+      cards:[
+        {text:'Finance cần kiểm soát tổng ngân sách.',correct:'Chi phí',why:'Cần so sánh chi phí thực tế của từng phương án.'},
+        {text:'Business lo lịch học ảnh hưởng vận hành.',correct:'Thời gian & lịch làm việc',why:'Cần xem lịch, thời lượng và tác động đến công việc.'},
+        {text:'L&D muốn học viên được thực hành nhiều hơn.',correct:'Trải nghiệm học viên',why:'Cần đánh giá cơ hội thực hành và áp dụng.'}
+      ],
+      summary:'Mindmap giúp đưa các ưu tiên lên cùng một bức tranh. Cần thêm dữ liệu và bằng chứng để so sánh, không tự động chọn phương án đúng.'
+    }
   ]
-};
-
-/* Module 2 activity copy and explanations. */
-window.LEARNING_CONTENT.activities = {
- meeting: {type:'Phân loại từng thẻ', groups:['Decision','Action','Open Question','Risk'], root:'Họp triển khai', items:[
-  ['Finance đã đồng ý ngân sách','Decision','Đây là một kết quả đã được thống nhất, vì vậy thuộc nhánh Quyết định (Decision).'],
-  ['Mai sẽ gửi bản cập nhật vào thứ Sáu','Action','Có việc cần thực hiện, người phụ trách và thời hạn: ghi ở nhánh Hành động (Action).'],
-  ['Pháp chế cần rà soát nội dung cuối','Action','Đây là việc tiếp theo cần làm. Khi gửi recap, cần xác nhận thêm người thực hiện và thời hạn.'],
-  ['Chưa rõ IT có cần tham gia hay không','Open Question','Chưa có câu trả lời; giữ thành câu hỏi mở để được xác nhận sau cuộc họp.']
- ]},
- problem: {type:'Thám tử dữ kiện', groups:['Fact','Hypothesis'], root:'Báo cáo trễ', items:[
-  ['Ba kỳ gần nhất báo cáo nộp muộn','Fact','Lịch sử nộp báo cáo là dữ kiện quan sát được trong tình huống giả định.'],
-  ['Mẫu báo cáo thay đổi vào tháng trước','Fact','Có thay đổi mẫu là dữ kiện. Chưa đủ để kết luận thay đổi này gây trễ.'],
-  ['Hệ thống mới chắc chắn gây chậm','Hypothesis','Đây là một giải thích chưa được kiểm chứng. Từ “chắc chắn” không biến nó thành bằng chứng.'],
-  ['Chưa có người nhận trách nhiệm tổng hợp','Hypothesis','Trong dữ kiện của bài chưa có phân công được xác nhận; cần kiểm tra đầu mối thực tế.']
- ]},
- project: {type:'Xây nhánh dự án', root:'Chia sẻ kiến thức', items:[
-  ['Mục tiêu và kết quả kỳ vọng',1,'Xác định vì sao triển khai và tiêu chí thành công.'],
-  ['Phạm vi trong / ngoài dự án',1,'Làm rõ giới hạn để các bên không hiểu khác nhau.'],
-  ['Các bên liên quan và vai trò',1,'Xác định sponsor, owner và người tham gia.'],
-  ['Các nhóm công việc chính',1,'Tạo khung việc cấp cao trước khi phân rã task.'],
-  ['Rủi ro và ràng buộc',1,'Nhận diện giới hạn nguồn lực, thời gian và các điểm cần theo dõi.'],
-  ['Thiết kế banner ngay ngày mai',0,'Đây là task chi tiết, đặt ở tầng sâu sau khi đã thống nhất khung dự án.'],
-  ['Gửi email mời họp đầu tiên',0,'Đây là task điều phối, không thay thế các nhánh định hướng cấp cao.']
- ]},
- picture: {type:'Biên tập sơ đồ', root:'Dự án LMS · Tổng quan', items:[
-  ['Mục tiêu dự án',1,'Giúp người đọc hiểu dự án hướng đến kết quả gì.'],
-  ['Tiến độ hiện tại',1,'Cho biết dự án đang ở đâu so với kế hoạch.'],
-  ['Rủi ro trọng yếu',1,'Giúp lãnh đạo nhận diện điều có thể ảnh hưởng kết quả.'],
-  ['Quyết định cần phê duyệt',1,'Nêu rõ hành động hoặc phê duyệt đang cần từ người đọc.'],
-  ['Mốc tiếp theo',1,'Cho biết bước tiếp theo và thời điểm kỳ vọng.'],
-  ['Lịch hẹn vendor lần thứ 4',0,'Có thể giữ ở tầng chi tiết; không cần xuất hiện trong cập nhật 30 giây.'],
-  ['Chi tiết 17 comment của team',0,'Lưu ở hồ sơ làm việc để tra cứu; đưa lên tổng quan sẽ làm loãng thông điệp.'],
-  ['Thứ tự các email nhắc việc',0,'Lịch sử trao đổi cần thiết khi tra cứu, nhưng không phải nhánh ưu tiên của lãnh đạo.']
- ]},
- decision: {type:'Nối góc nhìn & tiêu chí', root:'Quyết định hình thức đào tạo', criteria:['Chi phí','Thời gian triển khai','Trải nghiệm học viên'], views:[
-  ['Finance muốn tối ưu ngân sách','Chi phí','Góc nhìn này cần số liệu chi phí để so sánh, không phải mặc định chọn phương án rẻ nhất.'],
-  ['Business lo ảnh hưởng lịch làm việc','Thời gian triển khai','Cần xem thời lượng, lịch học và tác động đến công việc.'],
-  ['L&D muốn tăng cơ hội thực hành','Trải nghiệm học viên','Cần đánh giá cơ hội áp dụng và mức độ tương tác trong từng phương án.']
- ]}
 };
