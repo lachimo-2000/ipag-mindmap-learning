@@ -6,7 +6,7 @@ const KEY='ipa-mindmap-lab-v25';
 const defaults=()=>({quiz:{},labs:{},chapters:{}});
 let P;try{P=Object.assign(defaults(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){P=defaults()}
 for(const k of Object.keys(defaults())) if(!P[k]||typeof P[k]!=='object'||Array.isArray(P[k])) P[k]={};
-let UI={page:'home',quizIndex:0,caseId:C.module2Cases[0]?.id||'meeting',chapter:G[0]?.id||'',navOpen:{m1:true,m2:false,m3:false},guideGroups:{},stack:[],selectedCard:null};
+let UI={page:'intro',quizIndex:0,caseId:C.module2Cases[0]?.id||'meeting',chapter:G[0]?.id||'',navOpen:{m1:true,m2:false,m3:false},guideGroups:{},stack:[],selectedCard:null};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(P))}catch(e){}}
@@ -29,7 +29,7 @@ function navigate(page,opts={}){
 }
 function back(){const last=UI.stack.pop(); if(last) restore(last); else navigate('home',{noPush:true});}
 function crumbs(){
-  const isHome=UI.page==='home'; document.body.dataset.page=UI.page; $('.back-link').hidden=isHome;
+  const isHome=['home','intro'].includes(UI.page); document.body.dataset.page=UI.page; $('.back-link').hidden=isHome;
   let path=isHome?[]:[{t:'Trang chủ',act:'open-home'}];
   if(['m1video','m1quiz'].includes(UI.page)){path.push({t:'Module 1 · Vì sao & Khi nào',act:'open-m1video'}); if(UI.page==='m1quiz') path.push({t:'Bài kiểm tra tương tác',act:'noop'});}
   if(['m2','case','m2-complete'].includes(UI.page)){path.push({t:'Module 2 · Thực hành MindMap',act:'open-m2'}); if(UI.page==='case'){const c=getCase(UI.caseId); path.push({t:c?`${c.num} · ${c.title}`:'Case',act:'noop'});} if(UI.page==='m2-complete') path.push({t:'Tổng kết Module 2',act:'noop'});}
@@ -42,7 +42,7 @@ function navGroup(id,title,subtitle,entries){
 }
 function renderNav(){
   const m1=[{num:'1.1',title:'Video bài học',act:'open-m1video',active:UI.page==='m1video'},{num:'1.2',title:'5 câu hỏi tương tác',act:'open-m1quiz',active:UI.page==='m1quiz',done:window.IPA_QUIZ?.finished(P.quiz)===5}];
-  const m2=[{num:'2.0',title:'Giới thiệu 5 case',act:'open-m2',active:UI.page==='m2'}].concat(C.module2Cases.map(c=>({num:c.num,title:c.title,act:'open-case',id:c.id,active:UI.page==='case'&&UI.caseId===c.id,done:!!P.labs[c.id]?.complete})));
+  const m2=[{num:'2.0',title:'Tổng quan Module 2',act:'open-m2',active:UI.page==='m2'}].concat(C.module2Cases.map(c=>({num:c.num,title:c.title,act:'open-case',id:c.id,active:UI.page==='case'&&UI.caseId===c.id,done:!!P.labs[c.id]?.complete})));
   const sections=[['gA','01 · Bắt đầu & quản lý',0,4],['gB','02 · Tạo & chỉnh node',4,6],['gC','03 · Bố cục & định dạng',6,10],['gD','04 · Chèn & kết nối',10,15],['gE','05 · Trao đổi & trình bày',15,19],['gF','06 · Chia sẻ & xuất file',19,22]];
   const guideNav=sections.map(([id,title,from,to])=>{
     const isOpen=UI.guideGroups[id]!==false;
@@ -56,7 +56,7 @@ function labState(id){return (P.labs[id] ||= {step:0,steps:{},complete:false});}
 function stageList(caseObj){return caseObj.type==='multi-stage' ? caseObj.stages : [{type:'sort',title:'Thực hành',zones:caseObj.zones,cards:caseObj.cards}];}
 function stepState(caseObj,idx){
   const stages=stageList(caseObj); const stage=stages[idx]; const state=labState(caseObj.id); state.steps ||= {};
-  if(!state.steps[idx]) state.steps[idx]= stage.type==='sort'?{placements:{},checked:false}:{selected:[],checked:false};
+  if(!state.steps[idx]) state.steps[idx]={placements:{},selected:[],checked:false};
   return state.steps[idx];
 }
 function caseSolved(caseObj){
@@ -65,25 +65,23 @@ function caseSolved(caseObj){
 }
 function stageSolved(stage,st){
   if(stage.type==='sort') return stage.cards.every((card,i)=>(st.placements||{})[i]===card.correct);
-  if(stage.type==='multi') return stage.options.every((opt,i)=>!!opt.correct === (st.selected||[]).includes(i));
+  if(stage.type==='multi') return stage.options.every((opt,i)=>(st.placements||{})[i]===(opt.correct?'Cần thu thập':'Không cần thu thập'));
   return false;
 }
 function getCurrentStage(caseObj){const all=stageList(caseObj); const ls=labState(caseObj.id); const idx=Math.max(0,Math.min(ls.step||0,all.length-1)); return {idx,stage:all[idx],state:stepState(caseObj,idx),count:all.length};}
 function markCaseComplete(caseObj){const st=labState(caseObj.id); st.complete=true; save();}
-function homeView(){const q=window.IPA_QUIZ.finished(P.quiz); const modules=[['01','VÌ SAO & KHI NÀO','Hiểu khi nào dùng MindMap trong năm tình huống công việc.','m1',`${q}/5 câu hỏi`],['02','THỰC HÀNH MINDMAP','Dùng mindmap để phân loại, tổ chức và làm rõ thông tin trong 5 case công việc.','m2',`${completedCases()}/5 case`],['03','HỌC GITMIND','Làm theo 22 hướng dẫn tiếng Việt và thực hành trực tiếp trên GitMind.','m3',`${cnt(P.chapters)}/${G.length} bài hướng dẫn`]];
- return `<section class="hero"><img class="hero-image" src="assets/images/ipa-building.png" alt="" aria-hidden="true"><div class="hero-copy"><span class="eyebrow">IPA GROUP · ĐÀO TẠO NỘI BỘ</span><h1>MindMap<br><span>Trong công việc.</span></h1><p>Tư duy rõ ràng hơn. Kết nối thông tin tốt hơn. Biến những tình huống công việc thường ngày thành một bức tranh dễ hiểu và có thể hành động.</p><div class="btn-row">${btn('Bắt đầu hành trình →','open-m1','primary')}${btn('Thực hành 5 case','open-m2','outline')}</div></div><div class="hero-stat"><strong>03</strong><span>Học phần</span><strong style="margin-top:20px">05</strong><span>Case công việc</span></div></section>
- <div class="section-heading"><div><h2>Hành trình học tập</h2><p>Hiểu khi nào dùng · Biết cách làm · Thực hành công cụ</p></div>${tag('Học qua thực hành','gold')}</div>
- <section class="module-grid">${modules.map(m=>`<article class="module-card card"><div class="module-n">HỌC PHẦN ${m[0]}</div><h3>${m[1]}</h3><p>${m[2]}</p><div class="mini-meta"><span class="pill">${m[4]}</span>${btn('Khám phá →','open-'+m[3],'ghost small')}</div></article>`).join('')}</section>
- <div class="learning-strip"><div style="font-size:1.6rem;color:var(--ipa-deep)">✧</div><div><strong>Tinh thần khóa học</strong><p>MindMap không chỉ là hình vẽ đẹp. Mỗi sơ đồ cần trả lời đúng câu hỏi, làm rõ cấu trúc thông tin và giúp chúng ta tiến lên bước tiếp theo.</p></div></div>`;
+function introView(){
+ return `<section class="intro-screen" id="intro-screen" aria-label="Giới thiệu khóa học MindMap"><div class="intro-backdrop"></div><div class="intro-shade"></div><div class="intro-content"><span class="intro-eyebrow">IPA GROUP · ĐÀO TẠO NỘI BỘ</span><div class="intro-headline"><div class="intro-title"></div><div class="intro-title-secondary"></div></div><div class="intro-sentences"><p class="intro-lead"></p><p class="intro-line"></p><p class="intro-line-two"></p></div><button class="intro-ready" data-action="begin-journey">Sẵn sàng bắt đầu hành trình <span aria-hidden="true">→</span></button></div><div class="intro-bottom">MINDMAP AS A SKILL · IPA GROUP</div></section>`;
+}
+function homeView(){
+ return `<section class="journey-heading"><span class="eyebrow">IPA GROUP · HÀNH TRÌNH HỌC TẬP</span><h1>MindMap <span>Trong công việc.</span></h1><p>Khám phá ba học phần trên cùng một sơ đồ. Mở nhánh để xem giới thiệu, sau đó bấm vào module muốn học.</p></section><div id="journey-map" aria-label="MindMap hành trình học tập"></div><div class="learning-strip journey-note"><div style="font-size:1.6rem;color:var(--ipa-deep)">✧</div><div><strong>Học để ứng dụng</strong><p>Ghi nhận → Sắp xếp → Kết nối. Mỗi sơ đồ giúp bạn tổ chức thông tin rõ ràng và có thể hành động.</p></div></div>`;
 }
 function m1VideoView(){return shell('Vì sao và khi nào nên dùng MindMap?','Xem video bài học, sau đó trả lời năm câu hỏi tương tác để củng cố kiến thức vừa học.','HỌC PHẦN 01 · 1.1 XEM VIDEO')+
  `<section class="card pad-lg video-lesson"><div class="workspace-title">VIDEO BÀI HỌC · MINDMAP AS A SKILL</div><div class="video-wrap"><video controls preload="metadata" playsinline src="assets/videos/module-1/module-01.mp4" aria-label="MindMap as a Skill - Module 1"></video></div><div class="btn-row end">${btn('Tiếp tục: Câu hỏi tương tác →','open-m1quiz')}</div></section>`;}
 function m1QuizView(){ return window.IPA_QUIZ.view({C,P,UI,esc,btn,progress,tag,shell}); }
 function m2View(){
-  return shell('Module 2 — Thực hành MindMap trong công việc','Năm case giúp bạn dùng mindmap để phân loại, tổ chức và làm rõ thông tin trong công việc. An và Bình sẽ dẫn chuyện và phản hồi trong từng case.','HỌC PHẦN 02 · 5 CASE TƯƠNG TÁC')+
-  `<div class="learning-strip" style="margin:0 0 22px"><div style="font-size:1.7rem;color:var(--ipa-deep)">◎</div><div><strong>Luồng học trong mỗi case</strong><p>Đọc bối cảnh → kéo thẻ vào ô nhận hoặc chọn thẻ rồi chọn ô → xem mindmap cập nhật → bấm Kiểm tra đáp án → sửa và kiểm tra lại → chuyển case tiếp theo.</p></div></div>
-  <section class="scenario-grid">${C.module2Cases.map(c=>`<button class="scenario-card" data-action="open-case" data-id="${c.id}"><span class="scenario-icon">${c.num.split('.')[1]}</span><strong>${c.num} · ${c.title}</strong><small>${c.task}</small><span class="scenario-bottom">${P.labs[c.id]?.complete?'✓ Đã hoàn thành':'Bắt đầu case'} <span>↗</span></span></button>`).join('')}</section>
-  <div class="card pad item-space">${progress(completedCases(),C.module2Cases.length)}<p class="note item-space">Các case là ví dụ giả định để luyện kỹ năng, không phản ánh quy trình hay chính sách đã được ban hành của IPA Group.</p><div class="btn-row end">${btn('Bắt đầu với Case 1 →','open-case','outline','data-id="meeting"')}</div></div>`;
+  return shell('Module 2 — Thực hành MindMap trong công việc','Tổng quan 5 case được trình bày thành một MindMap. Mở từng nhánh để khám phá mục tiêu, sau đó chọn case và thực hành trực tiếp trên sơ đồ.','HỌC PHẦN 02 · 2.0 TỔNG QUAN')+
+    `<div class="m2-map-intro"><strong>Ghi nhận → Sắp xếp → Kết nối</strong><p>Chọn dấu + trên từng nhánh để xem nội dung. Bạn có thể zoom bằng con lăn, kéo nền để di chuyển và bấm ↗ để bắt đầu case.</p></div><div id="m2-overview" aria-label="Mindmap 5 case Module 2"></div><div class="m2-progress-note">${progress(completedCases(),5)}<p class="note">Đây là các tình huống giả định để luyện kỹ năng, không phản ánh chính sách IPA Group.</p></div>`;
 }
 function renderMap(root,branches,caption='MINDMAP'){
  return `<section class="canvas-panel"><div class="canvas-tools"><strong>${esc(caption)}</strong><div class="canvas-controls"><button class="outline small" data-action="map-zoom" data-delta="-0.15" aria-label="Thu nhỏ sơ đồ">−</button><button class="outline small" data-action="map-fit">100%</button><button class="outline small" data-action="map-zoom" data-delta="0.15" aria-label="Phóng to sơ đồ">+</button><button class="outline small" data-action="map-expand">⛶ Phóng toàn màn hình</button></div></div><div class="canvas-viewport" tabindex="0" aria-label="Sơ đồ; cuộn để xem các nhánh"><div class="zoom-content"><div class="map-surface"><div class="map-layout"><div class="map-root">${esc(root)}</div><div class="map-branches">${branches.map(b=>`<div class="map-branch ${b.children?.length?'':'no-leaves'}"><div class="branch-name">${esc(b.name)}</div>${b.children?.length?`<div class="map-leaves">${b.children.map(x=>`<span class="map-leaf ${x.style||''}">${esc(x.text)}</span>`).join('')}</div>`:''}</div>`).join('')}</div></div></div></div></div></section>`;
@@ -135,10 +133,10 @@ function multiFeedback(stage,st){
   return `<section class="review-card"><div class="review-head"><div><strong>Phản hồi từng lựa chọn</strong><p>Xem lại lý do cho từng bằng chứng.</p></div><span class="review-score">${correct}/${stage.options.length}</span></div><div class="review-items single-col">${stage.options.map((opt,i)=>`<article class="review-item ${selected.includes(i)===!!opt.correct?'right':'wrong'}"><span class="review-icon">${selected.includes(i)===!!opt.correct?'✓':'↻'}</span><div><strong>${esc(opt.text)}</strong><small><b>Bạn đã chọn:</b> ${selected.includes(i)?'Có':'Không'} · <b>Gợi ý:</b> ${opt.correct?'Nên chọn':'Không nên chọn'}</small><p>${esc(opt.why)}</p></div></article>`).join('')}</div></section>`;
 }
 function caseView(){
-  const caseObj=getCase(UI.caseId); if(!caseObj) return m2View();
-  const current=getCurrentStage(caseObj);
-  const stepLabel = stageList(caseObj).length>1 ? `<div class="stepper">${stageList(caseObj).map((s,i)=>`<div class="step ${current.idx===i?'active':''} ${current.idx>i||stageSolved(s,stepState(caseObj,i))?'done':''}"><b>${i+1}</b>${esc(s.title)}</div>`).join('')}</div>` : '';
-  return shell('Module 2 — Thực hành MindMap trong công việc','Dùng mindmap để phân loại, tổ chức và làm rõ thông tin trong công việc. Sau mỗi lần kiểm tra, bạn có thể sửa và kiểm tra lại ngay.','HỌC PHẦN 02 · CASE TƯƠNG TÁC') + stepLabel + (current.stage.type==='sort' ? sortStageView(caseObj,current.stage,current.state) : multiStageView(caseObj,current.stage,current.state));
+ const obj=getCase(UI.caseId);if(!obj)return m2View();
+ const c=getCurrentStage(obj);
+ return shell(`Case ${C.module2Cases.indexOf(obj)+1} — ${obj.title}`,obj.task,'MODULE 2 · THỰC HÀNH TRÊN MINDMAP')+
+ `<div class="lm-case-context"><p><b>Bối cảnh:</b> ${esc(obj.intro)}</p><p><b>${obj.narrator.startsWith('Bình')?'Bình':'An'}:</b> ${esc(obj.narrator.split('“')[1]?.replace('”','')||obj.narrator)}</p></div><div id="case-mindmap"></div>`;
 }
 function m2CompleteView(){
   const branches=C.module2Cases.map(c=>({name:c.title,children:[{text:c.summary,style:'correct'}]}));
@@ -158,10 +156,38 @@ function chapterView(){
 }
 function render(){
   window.GitMindOverview?.destroy();
-  const views={home:homeView,m1video:m1VideoView,m1quiz:m1QuizView,m2:m2View,case:caseView,'m2-complete':m2CompleteView,m3:m3View,chapter:chapterView};
+  window.LearningMaps?.destroy();
+  const views={intro:introView,home:homeView,m1video:m1VideoView,m1quiz:m1QuizView,m2:m2View,case:caseView,'m2-complete':m2CompleteView,m3:m3View,chapter:chapterView};
   $('#screen').innerHTML=(views[UI.page]||homeView)();
   renderNav(); crumbs(); $('#screen').classList.remove('page-enter'); void $('#screen').offsetWidth; $('#screen').classList.add('page-enter');
   if(UI.page==='m3') window.GitMindOverview?.mount($('#gm-map'),{items:G,done:P.chapters,onOpen:goChapter});
+  if(UI.page==='intro') window.LearningMaps?.intro($('#intro-screen'));
+  if(UI.page==='home'){
+    const items=[
+      {id:'m1',title:'Vì sao & Khi nào',desc:'Video bài học và 5 câu hỏi tương tác · Hiểu MindMap và ba bước Ghi nhận → Sắp xếp → Kết nối.'},
+      {id:'m2',title:'Thực hành MindMap',desc:'5 case công việc · Kéo thả node, kết nối nhánh và kiểm tra để hiểu cách tổ chức thông tin.'},
+      {id:'m3',title:'Học GitMind',desc:'22 bài có GIF hướng dẫn · Thực hành thao tác trực tiếp trên GitMind.'}
+    ];
+    window.LearningMaps?.overview($('#journey-map'),{items,title:'MindMap',subtitle:'Trong công việc',kind:'modules',onOpen:id=>navigate(id==='m1'?'m1video':id)});
+  }
+  if(UI.page==='m2') window.LearningMaps?.overview($('#m2-overview'),{items:C.module2Cases.map(x=>({id:x.id,title:x.title,desc:x.task})),title:'Thực hành MindMap',subtitle:'5 case công việc',kind:'cases',done:Object.fromEntries(C.module2Cases.map(x=>[x.id,!!P.labs[x.id]?.complete])),onOpen:goCase});
+  if(UI.page==='case'){
+    const obj=getCase(UI.caseId),c=getCurrentStage(obj),st=c.state;
+    window.LearningMaps?.mountCase($('#case-mindmap'),{
+      stage:c.stage,caseObj:obj,state:st,selected:UI.selectedCard,checked:!!st.checked,solved:stageSolved(c.stage,st),stepIndex:c.idx,stepCount:c.count,
+      onSelect:i=>{UI.selectedCard=i;render();},
+      onPlace:(i,zone)=>{
+        const itemCount=c.stage.type==='multi'?c.stage.options.length:c.stage.cards.length;
+        if(i<0||i>=itemCount)return;
+        st.placements ||= {};
+        if(zone==='__bank__')delete st.placements[i];else st.placements[i]=zone;
+        if(c.stage.type==='multi')st.selected=Object.keys(st.placements).filter(k=>st.placements[k]==='Cần thu thập').map(Number);
+        st.checked=false;UI.selectedCard=null;save();render();
+      },
+      onCheck:()=>action('check-stage',{}),onReset:()=>action('reset-stage',{}),
+      onNext:()=>action('next-stage',{}),onPrev:()=>action('prev-stage',{}),onFinish:()=>action('finish-case',{})
+    });
+  }
 }
 function goCase(id){if(!getCase(id)) return; navigate('case',{state:{caseId:id}});}
 function goChapter(id){if(!G.find(x=>x.id===id)) return; P.chapters[id]=true; save(); navigate('chapter',{state:{chapter:id}});}
@@ -170,6 +196,7 @@ function action(a,el){
   if(a.startsWith('quiz-') && window.IPA_QUIZ.handle(a,el,{C,P,UI,save,render,message,navigate})) return;
   switch(a){
     case 'open-home': navigate('home'); return;
+    case 'begin-journey': {const intro=$('#intro-screen');intro?.classList.add('is-transitioning');setTimeout(()=>navigate('home'),950);return;}
     case 'open-m1': case 'open-m1video': navigate('m1video'); return;
     case 'open-m1quiz': navigate('m1quiz'); return;
     case 'open-m2': navigate('m2'); return;
@@ -188,7 +215,7 @@ function action(a,el){
     }
     case 'reset-stage': {
       const caseObj=getCase(UI.caseId); const current=getCurrentStage(caseObj);
-      if(current.stage.type==='sort') current.state.placements={}; else current.state.selected=[];
+      current.state.placements={}; if(current.stage.type==='multi')current.state.selected=[];
       current.state.checked=false; UI.selectedCard=null; save(); render(); return;
     }
     case 'check-stage': {
