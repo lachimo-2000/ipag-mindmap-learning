@@ -24,33 +24,30 @@ function panZoom(host,world,opts={}){
 }
 function overview(host,{items=[],title='MindMap',subtitle='',kind='cases',done={},onOpen=()=>{}}={}){
   if(overviewSession)overviewSession.destroy();if(!host)return;
-  let open={};let view=null;
-  const worldW=1320,baseH=860;
-  function draw(){
-    const nodes=[],edges=[];const root={x:660,y:430,w:260,h:105};nodes.push({...root,kind:'root'});
-    items.forEach((it,i)=>{
-      const side=i%2===0?'left':'right',order=Math.floor(i/2),x=side==='left'?270:1060,y=175+order*260;
-      const n={x,y,w:280,h:85,it,i,side};nodes.push({...n,kind:'branch'});
-      const dir=side==='left'?-1:1;const sx=root.x+dir*root.w/2,ex=x-dir*n.w/2;
-      edges.push(`<path d="M${sx} ${root.y} C${sx+dir*88} ${root.y},${ex-dir*88} ${y},${ex} ${y}" class="lm-branch-path p${i%6}"/>`);
-      if(open[i]){
-        const cx=side==='left'?270:1060,cy=y+104;
-        edges.push(`<path d="M${x} ${y+43} Q${x+dir*80} ${y+78} ${cx} ${cy-22}" class="lm-leaf-path"/>`);
-        nodes.push({kind:'detail',x:cx,y:cy,w:315,h:80,it,i});
-      }
-    });
-    host.querySelector('.lm-overview-world').innerHTML=`<svg class="lm-overview-paths" viewBox="0 0 ${worldW} ${baseH}" aria-hidden="true">${edges.join('')}</svg>${nodes.map(n=>{
-      if(n.kind==='root')return `<div class="lm-ov-root" style="left:${n.x}px;top:${n.y}px"><small>CHỦ ĐỀ TRUNG TÂM</small><strong>${E(title)}</strong><span>${E(subtitle)}</span></div>`;
-      const a=n.it,finished=!!done[a.id];
-      if(n.kind==='branch')return `<div class="lm-ov-branch p${n.i%6}" style="left:${n.x}px;top:${n.y}px"><button class="lm-ov-expand" data-overview-expand="${n.i}" aria-label="${open[n.i]?'Thu gọn':'Mở'} mô tả ${E(a.title)}" aria-expanded="${!!open[n.i]}">${open[n.i]?'−':'+'}</button><div class="lm-ov-label"><small>${kind==='cases'?`CASE ${n.i+1}`:`MODULE ${n.i+1}`} ${finished?'· ✓ ĐÃ XONG':''}</small><strong>${E(a.title)}</strong></div><button class="lm-ov-go" data-overview-open="${E(a.id)}" title="Mở ${E(a.title)}">↗</button></div>`;
-      return `<div class="lm-ov-detail p${n.i%6}" style="left:${n.x}px;top:${n.y}px"><p>${E(a.desc||a.subtitle||'')}</p><button data-overview-open="${E(a.id)}">Khám phá →</button></div>`;
-    }).join('')}`;
-    host.querySelector('[data-overview-status]').textContent=`${Object.values(open).filter(Boolean).length}/${items.length} nhóm đang mở`;
+  const count=items.length;
+  // Root is always to the left; all first-level branches align to the right.
+  const W=1500,H=860, root={x:265,y:420,w:270,h:110},branchX=880,detailX=1250;
+  const ys=count===3?[215,420,625]:count===5?[128,274,420,566,712]:items.map((_,i)=>150+i*(570/Math.max(count-1,1)));
+  let open={};
+  host.innerHTML=`<div class="lm-overview"><div class="lm-map-tools"><div><strong>${kind==='cases'?'Tổng quan · 5 case công việc':'Hành trình học · 3 module'}</strong><small>Chọn dấu + để xem mô tả · Chọn ↗ để đi vào nội dung</small></div><div class="lm-zoom-tools"><button data-overview-expandall="1">Mở tất cả</button><button data-overview-collapseall="1">Thu gọn</button><button data-map-control="out" aria-label="Thu nhỏ">−</button><output data-map-percent>100%</output><button data-map-control="in" aria-label="Phóng to">+</button><button data-map-control="fit">Vừa khung</button></div></div><div class="lm-overview-viewport" data-map-viewport tabindex="0" aria-label="MindMap: các nhánh bên phải, kéo để di chuyển, cuộn để phóng to thu nhỏ"><div class="lm-overview-world" style="width:${W}px;height:${H}px"><svg class="lm-overview-paths" viewBox="0 0 ${W} ${H}" aria-hidden="true"><g class="lm-overview-trunk">${items.map((it,i)=>{const end=branchX-143,y=ys[i],start=root.x+root.w/2;return `<path d="M${start} ${root.y} C${start+185} ${root.y},${end-145} ${y},${end} ${y}" class="lm-branch-path p${i%6}"/>`;}).join('')}</g><g class="lm-overview-detail-paths"></g></svg><div class="lm-ov-root" style="left:${root.x}px;top:${root.y}px"><small>CHỦ ĐỀ TRUNG TÂM</small><strong>${E(title)}</strong><span>${E(subtitle)}</span></div>${items.map((it,i)=>`<div class="lm-ov-branch p${i%6}" style="left:${branchX}px;top:${ys[i]}px" data-ov-branch="${i}"><button class="lm-ov-expand" data-overview-expand="${i}" aria-label="Mở mô tả ${E(it.title)}" aria-expanded="false">+</button><div class="lm-ov-label"><small>${kind==='cases'?`CASE ${i+1}`:`MODULE ${i+1}`} ${done[it.id]?'· ✓ ĐÃ XONG':''}</small><strong>${E(it.title)}</strong></div><button class="lm-ov-go" data-overview-open="${E(it.id)}" aria-label="Vào ${E(it.title)}">↗</button></div>`).join('')}<div class="lm-overview-detail-nodes"></div></div></div><div class="lm-map-status" data-overview-status aria-live="polite">0/${count} nhóm đang mở</div></div>`;
+  const detailLayer=host.querySelector('.lm-overview-detail-nodes');
+  const detailPaths=host.querySelector('.lm-overview-detail-paths');
+  function syncDetails(){
+    detailPaths.innerHTML=items.map((it,i)=>open[i]?`<path d="M${branchX+142} ${ys[i]} C${branchX+214} ${ys[i]},${detailX-217} ${ys[i]},${detailX-160} ${ys[i]}" class="lm-leaf-path"/>`:'').join('');
+    // Only details are updated: root and branch nodes remain in the DOM.
+    detailLayer.innerHTML=items.map((it,i)=>open[i]?`<div class="lm-ov-detail p${i%6} lm-detail-arrival" style="left:${detailX}px;top:${ys[i]}px"><p>${E(it.desc||it.subtitle||'')}</p><button data-overview-open="${E(it.id)}">Khám phá →</button></div>`:'').join('');
+    items.forEach((it,i)=>{const b=host.querySelector(`[data-overview-expand="${i}"]`);if(b){b.textContent=open[i]?'−':'+';b.setAttribute('aria-expanded',String(!!open[i]));b.setAttribute('aria-label',`${open[i]?'Thu gọn':'Mở'} mô tả ${it.title}`);}});
+    host.querySelector('[data-overview-status]').textContent=`${Object.values(open).filter(Boolean).length}/${count} nhóm đang mở`;
   }
-  host.innerHTML=`<div class="lm-overview"><div class="lm-map-tools"><div><strong>${kind==='cases'?'Tổng quan · 5 case công việc':'Hành trình học · 3 module'}</strong><small>Chọn dấu + để xem mô tả · Chọn ↗ để đi vào nội dung</small></div><div class="lm-zoom-tools"><button data-overview-expandall="1">Mở tất cả</button><button data-overview-collapseall="1">Thu gọn</button><button data-map-control="out" aria-label="Thu nhỏ">−</button><output data-map-percent>100%</output><button data-map-control="in" aria-label="Phóng to">+</button><button data-map-control="fit">Vừa khung</button></div></div><div class="lm-overview-viewport" data-map-viewport tabindex="0" aria-label="Sơ đồ mindmap có thể kéo để di chuyển, cuộn chuột để phóng to và thu nhỏ"><div class="lm-overview-world"></div></div><div class="lm-map-status" data-overview-status aria-live="polite"></div></div>`;
-  draw();view=panZoom(host,host.querySelector('.lm-overview-world'),{width:worldW,height:baseH,minScale:.37,maxScale:2.2,fitWidthOnly:true});requestAnimationFrame(()=>view.fit());
-  const click=e=>{const expansion=e.target.closest('[data-overview-expand]');if(expansion){const i=Number(expansion.dataset.overviewExpand);open[i]=!open[i];draw();return;}const go=e.target.closest('[data-overview-open]');if(go){onOpen(go.dataset.overviewOpen);return;}if(e.target.closest('[data-overview-expandall]')){items.forEach((_,i)=>open[i]=true);draw();return;}if(e.target.closest('[data-overview-collapseall]')){open={};draw();}};
-  host.addEventListener('click',click);overviewSession={destroy(){host.removeEventListener('click',click);view.destroy();}};
+  const pan=panZoom(host,host.querySelector('.lm-overview-world'),{width:W,height:H,minScale:.19,maxScale:2.2,fitWidthOnly:true});
+  requestAnimationFrame(()=>pan.fit());
+  const click=e=>{const exp=e.target.closest('[data-overview-expand]');if(exp){const i=Number(exp.dataset.overviewExpand);open[i]=!open[i];syncDetails();return;}
+    const go=e.target.closest('[data-overview-open]');if(go){onOpen(go.dataset.overviewOpen);return;}
+    if(e.target.closest('[data-overview-expandall]')){items.forEach((_,i)=>open[i]=true);syncDetails();return;}
+    if(e.target.closest('[data-overview-collapseall]')){open={};syncDetails();}
+  };
+  host.addEventListener('click',click);
+  overviewSession={destroy(){host.removeEventListener('click',click);pan.destroy();}};
 }
 function mountCase(host,{stage,caseObj,state,selected,onSelect,onPlace,onCheck,onReset,onNext,onPrev,onFinish,stepIndex=0,stepCount=1,solved=false,checked=false}={}){
   if(caseSession)caseSession.destroy();if(!host)return;
@@ -100,15 +97,55 @@ function mountCase(host,{stage,caseObj,state,selected,onSelect,onPlace,onCheck,o
   host.addEventListener('click',handleClick);host.addEventListener('dragstart',dragStart);host.addEventListener('dragover',dragOver);host.addEventListener('dragleave',dragLeave);host.addEventListener('drop',drop);
   caseSession={destroy(){host.removeEventListener('click',handleClick);host.removeEventListener('dragstart',dragStart);host.removeEventListener('dragover',dragOver);host.removeEventListener('dragleave',dragLeave);host.removeEventListener('drop',drop);pan.destroy();}};
 }
-function intro(host){if(introCleanup)introCleanup();if(!host)return;
-  const lines=[['.intro-title','MindMap'],['.intro-title-secondary','Trong công việc.'],['.intro-lead','Tư duy rõ ràng hơn.'],['.intro-line','Kết nối thông tin tốt hơn.'],['.intro-line-two','Biến thông tin thành một bức tranh có thể hành động.']];
+function intro(host){
+  if(introCleanup)introCleanup();if(!host)return;
   const reduce=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const timers=[];let stopped=false;
-  function play(i){if(stopped)return;if(i===lines.length){const b=host.querySelector('.intro-ready');if(b)b.classList.add('visible');return;}
-    const [selector,text]=lines[i],el=host.querySelector(selector);if(!el)return;el.classList.add('typing');if(reduce){el.textContent=text;play(i+1);return;}
-    let j=0;const handle=window.setInterval(()=>{if(stopped){clearInterval(handle);return;}el.textContent=text.slice(0,++j);if(j>=text.length){clearInterval(handle);el.classList.remove('typing');timers.push(setTimeout(()=>play(i+1),i<2?240:320));}},Math.max(28,Math.min(62,1300/text.length)));timers.push(handle);
+  const timers=new Set(), intervals=new Set();let stopped=false;
+  const wait=(fn,ms)=>{const t=setTimeout(()=>{timers.delete(t);if(!stopped)fn();},ms);timers.add(t);return t;};
+  const clear=()=>{stopped=true;timers.forEach(clearTimeout);intervals.forEach(clearInterval);timers.clear();intervals.clear();};
+  function typeText(el,str,next){
+    if(!el)return next();
+    if(reduce){el.textContent=str;next();return;}
+    let i=0;el.classList.add('typing');const t=setInterval(()=>{
+      if(stopped){clearInterval(t);return;}el.textContent=str.slice(0,++i);
+      if(i>=str.length){clearInterval(t);intervals.delete(t);el.classList.remove('typing');wait(next,190);}
+    },Math.max(25,Math.min(64,960/str.length)));intervals.add(t);
   }
-  play(0);introCleanup=()=>{stopped=true;timers.forEach(clearTimeout);timers.forEach(clearInterval);};
+  const headingA=host.querySelector('.intro-title'), headingB=host.querySelector('.intro-title-secondary');
+  const lines=[['.intro-lead','Tư duy rõ ràng hơn.'],['.intro-line','Kết nối thông tin tốt hơn.'],['.intro-line-two','Biến thông tin thành một bức tranh có thể hành động.']];
+  function showLines(i=0){if(i>=lines.length){wait(()=>host.querySelector('.intro-ready')?.classList.add('visible'),360);return;}
+    const [selector,text]=lines[i],node=host.querySelector(selector);if(node){node.textContent=text;node.classList.add('line-reveal');}wait(()=>showLines(i+1),reduce?0:660);
+  }
+  typeText(headingA,'MindMap',()=>typeText(headingB,'Trong công việc.',()=>wait(()=>showLines(),200)));
+  introCleanup=clear;
 }
-window.LearningMaps={overview,mountCase,intro,destroy(){if(overviewSession){overviewSession.destroy();overviewSession=null;}if(caseSession){caseSession.destroy();caseSession=null;}if(introCleanup){introCleanup();introCleanup=null;}}};
+function exploreIntro(host,onComplete=()=>{}){
+  if(!host||host.dataset.stage==='explore')return;
+  if(introCleanup)introCleanup();introCleanup=null;
+  host.dataset.stage='explore';
+  const reduce=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const headline=host.querySelector('.intro-headline');
+  const rect=headline.getBoundingClientRect();
+  const map=host.querySelector('.intro-morph-map');
+  map.hidden=false;
+  // FLIP: reuse the actual title element, converting it into the central MindMap node.
+  const target=host.querySelector('.intro-map-root-anchor').getBoundingClientRect();
+  headline.classList.add('is-morphing');
+  Object.assign(headline.style,{position:'fixed',left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',height:rect.height+'px',margin:'0',transform:'none'});
+  // Flush starting geometry before animating to the destination bounding box.
+  void headline.offsetWidth;
+  host.classList.add('is-exploring');
+  const showNodes=()=>{
+    host.querySelector('.intro-map-branches')?.classList.add('is-visible');
+    const branches=[...host.querySelectorAll('.intro-map-branch')];
+    const gap=reduce?0:430;
+    branches.forEach((b,i)=>setTimeout(()=>b.classList.add('visible'),i*gap+180));
+    setTimeout(()=>{host.querySelector('.intro-start')?.classList.add('visible');onComplete();},(branches.length-1)*gap+(reduce?40:930));
+  };
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    Object.assign(headline.style,{left:target.left+'px',top:target.top+'px',width:target.width+'px',height:target.height+'px'});
+    if(reduce)showNodes();else setTimeout(showNodes,940);
+  }));
+}
+window.LearningMaps={overview,mountCase,intro,exploreIntro,destroy(){if(overviewSession){overviewSession.destroy();overviewSession=null;}if(caseSession){caseSession.destroy();caseSession=null;}if(introCleanup){introCleanup();introCleanup=null;}}};
 })();

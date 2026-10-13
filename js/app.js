@@ -42,7 +42,7 @@ function navGroup(id,title,subtitle,entries){
 }
 function renderNav(){
   const m1=[{num:'1.1',title:'Video bài học',act:'open-m1video',active:UI.page==='m1video'},{num:'1.2',title:'5 câu hỏi tương tác',act:'open-m1quiz',active:UI.page==='m1quiz',done:window.IPA_QUIZ?.finished(P.quiz)===5}];
-  const m2=[{num:'2.0',title:'Tổng quan Module 2',act:'open-m2',active:UI.page==='m2'}].concat(C.module2Cases.map(c=>({num:c.num,title:c.title,act:'open-case',id:c.id,active:UI.page==='case'&&UI.caseId===c.id,done:!!P.labs[c.id]?.complete})));
+  const m2=[{num:'',title:'Tổng quan Module 2',act:'open-m2',active:UI.page==='m2'}].concat(C.module2Cases.map(c=>({num:c.num,title:c.title,act:'open-case',id:c.id,active:UI.page==='case'&&UI.caseId===c.id,done:!!P.labs[c.id]?.complete})));
   const sections=[['gA','01 · Bắt đầu & quản lý',0,4],['gB','02 · Tạo & chỉnh node',4,6],['gC','03 · Bố cục & định dạng',6,10],['gD','04 · Chèn & kết nối',10,15],['gE','05 · Trao đổi & trình bày',15,19],['gF','06 · Chia sẻ & xuất file',19,22]];
   const guideNav=sections.map(([id,title,from,to])=>{
     const isOpen=UI.guideGroups[id]!==false;
@@ -71,7 +71,28 @@ function stageSolved(stage,st){
 function getCurrentStage(caseObj){const all=stageList(caseObj); const ls=labState(caseObj.id); const idx=Math.max(0,Math.min(ls.step||0,all.length-1)); return {idx,stage:all[idx],state:stepState(caseObj,idx),count:all.length};}
 function markCaseComplete(caseObj){const st=labState(caseObj.id); st.complete=true; save();}
 function introView(){
- return `<section class="intro-screen" id="intro-screen" aria-label="Giới thiệu khóa học MindMap"><div class="intro-backdrop"></div><div class="intro-shade"></div><div class="intro-content"><span class="intro-eyebrow">IPA GROUP · ĐÀO TẠO NỘI BỘ</span><div class="intro-headline"><div class="intro-title"></div><div class="intro-title-secondary"></div></div><div class="intro-sentences"><p class="intro-lead"></p><p class="intro-line"></p><p class="intro-line-two"></p></div><button class="intro-ready" data-action="begin-journey">Sẵn sàng bắt đầu hành trình <span aria-hidden="true">→</span></button></div><div class="intro-bottom">MINDMAP AS A SKILL · IPA GROUP</div></section>`;
+ return `<section class="intro-screen" id="intro-screen" aria-label="Giới thiệu khóa học MindMap">
+  <div class="intro-backdrop"></div><div class="intro-shade"></div>
+  <button type="button" class="intro-skip" data-action="skip-intro" aria-label="Bỏ qua giới thiệu và vào trang chủ">Bỏ qua <span aria-hidden="true">↗</span></button>
+  <div class="intro-content">
+    <span class="intro-eyebrow">IPA GROUP · ĐÀO TẠO NỘI BỘ</span>
+    <div class="intro-headline"><div class="intro-title"></div><div class="intro-title-secondary"></div></div>
+    <div class="intro-sentences"><p class="intro-lead"></p><p class="intro-line"></p><p class="intro-line-two"></p></div>
+    <button type="button" class="intro-ready" data-action="explore-intro">Khám phá nội dung tổng quan <span aria-hidden="true">→</span></button>
+  </div>
+  <div class="intro-morph-map" hidden aria-label="Tổng quan hành trình 3 module">
+    <div class="intro-map-root-anchor" aria-hidden="true"></div>
+    <div class="intro-map-branches">
+      <svg class="intro-connection-desktop" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true"><path d="M 337,350 C 450,350 470,175 627,175"/><path d="M 337,350 C 460,350 485,350 627,350"/><path d="M 337,350 C 450,350 470,525 627,525"/></svg>
+      <svg class="intro-connection-mobile" viewBox="0 0 400 800" preserveAspectRatio="none" aria-hidden="true"><path d="M 200,315 C 200,355 200,415 200,434"/><path d="M 200,315 C 200,400 200,510 200,544"/><path d="M 200,315 C 200,450 200,600 200,654"/></svg>
+      <div class="intro-map-branch" style="--branch:0"><small>MODULE 1</small><strong>Vì sao & Khi nào</strong><p>Video bài học và 5 câu hỏi · Nắm tư duy MindMap</p></div>
+      <div class="intro-map-branch" style="--branch:1"><small>MODULE 2</small><strong>Thực hành MindMap</strong><p>5 case công việc · Kéo thả node, kết nối và kiểm tra</p></div>
+      <div class="intro-map-branch" style="--branch:2"><small>MODULE 3</small><strong>Học GitMind</strong><p>22 bài hướng dẫn GIF · Thực hành trực tiếp trên GitMind</p></div>
+    </div>
+    <button type="button" class="intro-start" data-action="enter-home">Bắt đầu ngay <span aria-hidden="true">→</span></button>
+  </div>
+  <div class="intro-bottom">MINDMAP AS A SKILL · IPA GROUP</div>
+ </section>`;
 }
 function homeView(){
  return `<section class="journey-heading"><span class="eyebrow">IPA GROUP · HÀNH TRÌNH HỌC TẬP</span><h1>MindMap <span>Trong công việc.</span></h1><p>Khám phá ba học phần trên cùng một sơ đồ. Mở nhánh để xem giới thiệu, sau đó bấm vào module muốn học.</p></section><div id="journey-map" aria-label="MindMap hành trình học tập"></div><div class="learning-strip journey-note"><div style="font-size:1.6rem;color:var(--ipa-deep)">✧</div><div><strong>Học để ứng dụng</strong><p>Ghi nhận → Sắp xếp → Kết nối. Mỗi sơ đồ giúp bạn tổ chức thông tin rõ ràng và có thể hành động.</p></div></div>`;
@@ -196,7 +217,8 @@ function action(a,el){
   if(a.startsWith('quiz-') && window.IPA_QUIZ.handle(a,el,{C,P,UI,save,render,message,navigate})) return;
   switch(a){
     case 'open-home': navigate('home'); return;
-    case 'begin-journey': {const intro=$('#intro-screen');intro?.classList.add('is-transitioning');setTimeout(()=>navigate('home'),950);return;}
+    case 'explore-intro': window.LearningMaps?.exploreIntro($('#intro-screen'));return;
+    case 'enter-home': case 'skip-intro': navigate('home'); return;
     case 'open-m1': case 'open-m1video': navigate('m1video'); return;
     case 'open-m1quiz': navigate('m1quiz'); return;
     case 'open-m2': navigate('m2'); return;
