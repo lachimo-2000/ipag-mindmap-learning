@@ -91,7 +91,7 @@ function m2View(){
  'HỌC PHẦN 02 · TỔNG QUAN')+
  `<section class="ipam-v212-why card"><span class="eyebrow">TƯ DUY LÀM VIỆC THEO MỤC TIÊU</span><h3>Từ việc của riêng mình đến giá trị chung của tổ chức</h3><p>Bản chia sẻ nhấn mạnh rằng làm chủ vai trò chuyên môn thôi chưa đủ: mỗi người cần nhìn thấy công việc của mình đóng góp như thế nào cho nhiệm vụ, mục tiêu và chuỗi giá trị tổ chức. IPAM Way là cách cùng nhận diện, lập kế hoạch, hành động và làm chủ hành trình thực thi.</p><div class="ipam-v212-cycle">${steps.map((x,i)=>`<span><b>${'IPAM'[i]}</b> ${esc(x.short)}</span>`).join('<span class="ipam-v212-cycle-arrow" aria-hidden="true">→</span>')}</div></section>
  <div id="m2-overview" aria-label="MindMap 4 giai đoạn IPAM Way"></div>
- <div class="ipam-v212-source"><strong>Về nội dung nguồn</strong><p>Biên soạn từ <i>phan1.ipamwayframework.pdf</i> (bản chép lời, 8 trang). Đây là bản diễn giải định hướng tư duy, không phải văn bản công bố danh sách 5A/5M chính thức. Một số thuật ngữ trong bản ghi có thể bị nhận dạng giọng nói sai.</p></div>`;
+ `;
 }
 function caseView(){
  const obj=getCase(UI.caseId); if(!obj)return m2View();
@@ -104,7 +104,6 @@ function caseView(){
  <div class="ipam-v212-sectionheader"><span class="eyebrow">GIẢI THÍCH THEO BẢN CHIA SẺ</span><h3>Hiểu sâu hơn về ${esc(obj.short)}</h3></div>
  <div class="ipam-v212-reading">${obj.sections.map((sec,i)=>`<article class="ipam-v212-reading-card"><span class="ipam-v212-reading-index">${String(i+1).padStart(2,'0')}</span><div><h4>${esc(sec.title)}</h4><p>${esc(sec.text)}</p></div></article>`).join('')}</div>
  <div class="ipam-v212-takeaway"><strong>Điểm chốt</strong><p>${esc(obj.takeaway)}</p></div>
- <p class="ipam-v212-reference">Nguồn: ${esc(obj.source)} Diễn giải từ bản chép lời; những thuật ngữ chưa có danh sách đầy đủ không được tự bổ sung.</p>
  <div class="btn-row between ipam-v212-nav"><div>${previous?btn('← '+previous.short,'read-prev','outline'):btn('← Tổng quan IPAM Way','open-m2','outline')}</div><div>${next?btn('Tiếp tục: '+next.short+' →','read-next','primary journey-cta'):btn('Tiếp tục Module 3 →','open-m3','primary journey-cta')}</div></div>
  </section>`;
 }
