@@ -3,7 +3,7 @@
 const C=window.LEARNING_CONTENT;
 const G=window.GITMIND_CHAPTERS||[];
 /* No learner-completion/view tracking: all exercise answers are session-only. */
-const defaults=()=>({quiz:{},labs:{}});
+const defaults=()=>({quiz:{}});
 let P=defaults();
 // Clean up only legacy progress keys from earlier versions; do not persist new activity.
 try{localStorage.removeItem('ipa-mindmap-lab-v25');localStorage.removeItem('ipa-mindmap-lab-v2');}catch(_){}
@@ -13,7 +13,6 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const save=()=>{};
 const message=s=>{const t=$('#toast');if(!t)return;t.textContent=s;t.classList.add('show');clearTimeout(message.t);message.t=setTimeout(()=>t.classList.remove('show'),2500);};
 const cnt=o=>Object.values(o||{}).filter(Boolean).length;
-const completedCases=()=>C.module2Cases.filter(x=>P.labs[x.id]?.complete).length;
 const btn=(label,action,cls='primary',extra='')=>`<button class="${cls}" data-action="${action}" ${extra}>${label}</button>`;
 const tag=(label,kind='')=>`<span class="pill ${kind}">${label}</span>`;
 const progress=(n,max)=>`<div class="progress-row"><span>Tiến độ</span><span class="mono">${n}/${max}</span></div><div class="progress-track"><div class="progress-bar" style="width:${max?Math.max(0,Math.min(100,n/max*100)):0}%"></div></div>`;
@@ -51,28 +50,10 @@ function renderNav(){
   }).join('');
   const m3 = `<div class="nav-group"><button class="nav-parent ${['m3','chapter'].includes(UI.page)?'selected':''}" data-global-action="toggle-nav" data-id="m3" aria-expanded="${UI.navOpen.m3?'true':'false'}"><span class="nav-parent-icon">03</span><span class="nav-parent-copy"><strong>HỌC GITMIND</strong><small>${G.length} bài hướng dẫn thao tác</small></span><span class="nav-chevron">⌄</span></button>${UI.navOpen.m3?`<div class="nav-children"><button class="nav-child ${UI.page==='m3'?'active':''}" data-global-action="open-m3"><span>Tổng quan Module 3</span></button>${guideNav}</div>`:''}</div>`;
   const previousScroll=$('#sidebar').scrollTop;
-  $('#side-nav').innerHTML = navGroup('m1','VÌ SAO & KHI NÀO','Video và câu hỏi',m1) + navGroup('m2','IPAM WAY','4 giai đoạn · 8 hoạt động',m2) + m3;
+  $('#side-nav').innerHTML = navGroup('m1','VÌ SAO & KHI NÀO','Video và câu hỏi',m1) + navGroup('m2','IPAM WAY','4 giai đoạn · Nội dung đọc hiểu',m2) + m3;
   $('#sidebar').scrollTop=previousScroll;
 }
 function getCase(id){return C.module2Cases.find(x=>x.id===id);}
-function labState(id){return (P.labs[id] ||= {step:0,steps:{},complete:false});}
-function stageList(caseObj){return caseObj.type==='multi-stage' ? caseObj.stages : [{type:'sort',title:'Thực hành',zones:caseObj.zones,cards:caseObj.cards}];}
-function stepState(caseObj,idx){
-  const stages=stageList(caseObj); const stage=stages[idx]; const state=labState(caseObj.id); state.steps ||= {};
-  if(!state.steps[idx]) state.steps[idx]={placements:{},selected:[],checked:false};
-  return state.steps[idx];
-}
-function caseSolved(caseObj){
-  const stages=stageList(caseObj); const state=labState(caseObj.id);
-  return stages.every((stage,idx)=>stageSolved(stage, stepState(caseObj,idx)));
-}
-function stageSolved(stage,st){
-  if(stage.type==='sort') return stage.cards.every((card,i)=>(st.placements||{})[i]===card.correct);
-  if(stage.type==='multi') return stage.options.every((opt,i)=>(st.placements||{})[i]===(opt.correct?'Cần thu thập':'Không cần thu thập'));
-  return false;
-}
-function getCurrentStage(caseObj){const all=stageList(caseObj); const ls=labState(caseObj.id); const idx=Math.max(0,Math.min(ls.step||0,all.length-1)); return {idx,stage:all[idx],state:stepState(caseObj,idx),count:all.length};}
-function markCaseComplete(caseObj){labState(caseObj.id).complete=true;}
 function introView(){
  return `<section class="intro-screen" id="intro-screen" aria-label="Giới thiệu khóa học MindMap">
   <div class="intro-backdrop"></div><div class="intro-shade"></div>
@@ -89,7 +70,7 @@ function introView(){
       <svg class="intro-connection-desktop" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true"><path d="M 337,350 C 450,350 470,175 627,175"/><path d="M 337,350 C 460,350 485,350 627,350"/><path d="M 337,350 C 450,350 470,525 627,525"/></svg>
       <svg class="intro-connection-mobile" viewBox="0 0 400 800" preserveAspectRatio="none" aria-hidden="true"><path d="M 200,315 C 200,355 200,415 200,434"/><path d="M 200,315 C 200,400 200,510 200,544"/><path d="M 200,315 C 200,450 200,600 200,654"/></svg>
       <div class="intro-map-branch" style="--branch:0"><small>MODULE 1</small><strong>Vì sao & Khi nào</strong><p>Video bài học và 5 câu hỏi · Nắm tư duy MindMap</p></div>
-      <div class="intro-map-branch" style="--branch:1"><small>MODULE 2</small><strong>IPAM Way</strong><p>4 giai đoạn IPAM Way · Kéo thả node, kết nối và kiểm tra</p></div>
+      <div class="intro-map-branch" style="--branch:1"><small>MODULE 2</small><strong>IPAM Way</strong><p>4 giai đoạn IPAM Way · Nhận diện, lập kế hoạch, hành động, làm chủ</p></div>
       <div class="intro-map-branch" style="--branch:2"><small>MODULE 3</small><strong>Học GitMind</strong><p>22 bài hướng dẫn GIF · Thực hành trực tiếp trên GitMind</p></div>
     </div>
     <button type="button" class="intro-start" data-action="enter-home">Bắt đầu ngay <span aria-hidden="true">→</span></button>
@@ -104,72 +85,30 @@ function m1VideoView(){return shell('Vì sao và khi nào nên dùng MindMap?','
  `<section class="card pad-lg video-lesson"><div class="workspace-title">VIDEO BÀI HỌC · MINDMAP AS A SKILL</div><div class="video-wrap"><video controls preload="metadata" playsinline src="assets/videos/module-1/module-01.mp4" aria-label="MindMap as a Skill - Module 1"></video></div><div class="btn-row end">${btn('Tiếp tục: Câu hỏi tương tác →','open-m1quiz')}</div></section>`;}
 function m1QuizView(){ return window.IPA_QUIZ.view({C,P,UI,esc,btn,progress,tag,shell}); }
 function m2View(){
-  return shell('Module 2 — IPAM Way qua MindMap','Khám phá mô hình quản trị mục tiêu IPAM Way qua 4 giai đoạn. Mở nhánh và thử ghép các câu hỏi, thuật ngữ, đầu ra vào sơ đồ để hiểu cách sử dụng.','HỌC PHẦN 02 · TỔNG QUAN')+
-    `<div class="m2-map-intro"><strong>Identify → Plan → Accountability → Management → Identify</strong><p>Chọn dấu + trên từng nhánh để xem nội dung. Bạn có thể zoom bằng con lăn, kéo nền để di chuyển và bấm ↗ để bắt đầu case.</p></div><div id="m2-overview" aria-label="Mindmap 4 case Module 2"></div><div class="m2-progress-note"><p class="note"><b>IPAM Way là mô hình tư duy quản trị mục tiêu:</b> Identify (WHY) nhận diện đúng mục tiêu; Plan (WHAT & HOW) lập kế hoạch; Accountability (WHO) làm rõ trách nhiệm; Management (LEARN) theo dõi, học hỏi và cải tiến. Mỗi giai đoạn liên kết thành chu trình liên tục. Nguồn: IPAM Way Framework v1.1, trang 2–6, và sơ đồ IPAM Work. Những tình huống ứng dụng chỉ để thực hành.</p></div>`;
-}
-function renderMap(root,branches,caption='MINDMAP'){
- return `<section class="canvas-panel"><div class="canvas-tools"><strong>${esc(caption)}</strong><div class="canvas-controls"><button class="outline small" data-action="map-zoom" data-delta="-0.15" aria-label="Thu nhỏ sơ đồ">−</button><button class="outline small" data-action="map-fit">100%</button><button class="outline small" data-action="map-zoom" data-delta="0.15" aria-label="Phóng to sơ đồ">+</button><button class="outline small" data-action="map-expand">⛶ Phóng toàn màn hình</button></div></div><div class="canvas-viewport" tabindex="0" aria-label="Sơ đồ; cuộn để xem các nhánh"><div class="zoom-content"><div class="map-surface"><div class="map-layout"><div class="map-root">${esc(root)}</div><div class="map-branches">${branches.map(b=>`<div class="map-branch ${b.children?.length?'':'no-leaves'}"><div class="branch-name">${esc(b.name)}</div>${b.children?.length?`<div class="map-leaves">${b.children.map(x=>`<span class="map-leaf ${x.style||''}">${esc(x.text)}</span>`).join('')}</div>`:''}</div>`).join('')}</div></div></div></div></div></section>`;
-}
-function buildCaseBranches(caseObj, stage, st){
-  if(stage.type==='sort'){
-    return stage.zones.map(z=>{
-      const children=stage.cards.map((card,i)=>({card,i})).filter(({i})=>(st.placements||{})[i]===z.id).map(({card,i})=>({text:card.text,style:st.checked?(card.correct===z.id?'correct':'incorrect'):''}));
-      return {name:z.label.replace(/^↳\s*/,''),children};
-    });
-  }
-  if(caseObj.id==='problem'){
-    const sortState=stepState(caseObj,0);
-    return [
-      {name:'Dữ kiện',children:caseObj.stages[0].cards.filter((c,i)=>(sortState.placements||{})[i]==='Dữ kiện').map(c=>({text:c.text}))},
-      {name:'Giả thuyết',children:caseObj.stages[0].cards.filter((c,i)=>(sortState.placements||{})[i]==='Giả thuyết').map(c=>({text:c.text}))},
-      {name:'Bằng chứng cần thu thập',children:stage.options.filter((o,i)=>(st.selected||[]).includes(i)).map(o=>({text:o.text,style:st.checked?(o.correct?'correct':'incorrect'):''}))}
-    ];
-  }
-  return [];
-}
-function availableCardMarkup(caseObj, stage, st){
-  return stage.cards.map((card,i)=>({card,i})).filter(({i})=>!(st.placements||{})[i]).map(({card,i})=>`<button type="button" draggable="true" class="m2-card ${UI.selectedCard===i?'picked':''}" data-action="pick-card" data-index="${i}" data-draggable-card="${i}" aria-pressed="${UI.selectedCard===i}"><span class="m2-card-index">${String(i+1).padStart(2,'0')}</span><span class="m2-card-text">${esc(card.text)}</span></button>`).join('') || `<div class="empty-state">Tất cả thẻ đã được đưa vào ô nhận. Bạn vẫn có thể kéo thẻ từ các ô sang vị trí khác hoặc trả về danh sách.</div>`;
-}
-function assignedCardMarkup(caseObj, stage, st, zoneId){
-  const cards=stage.cards.map((card,i)=>({card,i})).filter(({i})=>(st.placements||{})[i]===zoneId);
-  return cards.map(({card,i})=>{
-    const result = st.checked ? (card.correct===zoneId?'correct':'wrong') : '';
-    return `<button type="button" draggable="true" class="m2-card in-zone ${result}" data-action="pick-card" data-index="${i}" data-draggable-card="${i}" aria-pressed="${UI.selectedCard===i}"><span class="m2-card-text">${esc(card.text)}</span><span class="m2-card-tools"><span class="m2-card-move">↺</span><span class="m2-card-status">${st.checked?(card.correct===zoneId?'✓':'↻'):''}</span></span></button>`;
-  }).join('') || `<div class="drop-zone-empty">Thả thẻ vào đây</div>`;
-}
-function sortStageView(caseObj, stage, st){
-  const allPlaced=stage.cards.every((_,i)=>!!(st.placements||{})[i]);
-  const solved=stageSolved(stage,st);
-  return `<div class="case-layout"><section class="card pad-lg"><div class="case-stage-top"><div><span class="eyebrow">${esc(caseObj.label)} · ${esc(stage.title||'Thực hành')}</span><h3 style="margin:8px 0 10px">${esc(caseObj.title)}</h3><p class="subtitle" style="margin:0;max-width:none">${esc(caseObj.task)}</p></div>${tag(caseObj.num,'gold')}</div><div class="context"><strong>Bối cảnh</strong><p>${esc(caseObj.intro)}</p></div><div class="case-quote">${esc(caseObj.narrator)}</div><div class="m2-workspace"><div><div class="workspace-title">THẺ THÔNG TIN</div><p class="note" style="margin-top:0">Kéo thẻ vào ô nhận hoặc chọn một thẻ rồi bấm vào ô nhận phù hợp.</p><div class="m2-card-bank" data-drop-zone="__bank__">${availableCardMarkup(caseObj,stage,st)}</div></div><div><div class="workspace-title">Ô NHẬN</div><div class="m2-zones ${stage.zones.length>3?'five-up':''}">${stage.zones.map(z=>`<button type="button" class="m2-zone ${UI.selectedCard!==null?'ready':''} ${z.id==='Truyền thông'||z.id==='Chi tiết để tra cứu'?'subzone':''}" data-action="assign-zone" data-zone="${esc(z.id)}" data-drop-zone="${esc(z.id)}"><div class="m2-zone-head"><strong>${esc(z.label)}</strong><small>${esc(z.hint)}</small></div><div class="m2-zone-body">${assignedCardMarkup(caseObj,stage,st,z.id)}</div></button>`).join('')}</div></div></div><div class="btn-row between"><div>${btn('Đặt lại bước này','reset-stage','outline')}</div><div>${btn('Kiểm tra đáp án','check-stage','primary',allPlaced?'':'disabled')} ${stageSolved(stage,st)?btn(stageList(caseObj).length>1?'Tiếp tục bước tiếp theo →':'Hoàn thành case →',stageList(caseObj).length>1?'next-stage':'finish-case','primary'):''}</div></div>${sortFeedback(stage,st)}<div class="feedback positive" style="display:${solved&&st.checked?'block':'none'}"><strong>✓ Điểm chốt</strong><p>${esc(caseObj.summary)}</p></div></section><aside>${renderMap(caseObj.root,buildCaseBranches(caseObj,stage,st),'MINDMAP CẬP NHẬT THEO CÁCH BẠN SẮP XẾP')}</aside></div>`;
-}
-function sortFeedback(stage,st){
-  if(!st.checked) return '';
-  const correct=stage.cards.filter((card,i)=>(st.placements||{})[i]===card.correct).length;
-  return `<section class="review-card"><div class="review-head"><div><strong>Phản hồi từng thẻ</strong><p>An và Bình đang giúp bạn đối chiếu cách đặt từng thẻ.</p></div><span class="review-score">${correct}/${stage.cards.length}</span></div><div class="review-items single-col">${stage.cards.map((card,i)=>`<article class="review-item ${(st.placements||{})[i]===card.correct?'right':'wrong'}"><span class="review-icon">${(st.placements||{})[i]===card.correct?'✓':'↻'}</span><div><strong>${esc(card.text)}</strong><small><b>Bạn đã đặt ở đâu:</b> ${esc((st.placements||{})[i]||'Chưa đặt')} · <b>Vị trí gợi ý:</b> ${esc(card.correct)}</small><p>${esc(card.why)}</p></div></article>`).join('')}</div></section>`;
-}
-function multiStageView(caseObj, stage, st){
-  const selected=st.selected||[]; const solved=stageSolved(stage,st);
-  return `<div class="case-layout"><section class="card pad-lg"><div class="case-stage-top"><div><span class="eyebrow">${esc(caseObj.label)} · ${esc(stage.title)}</span><h3 style="margin:8px 0 10px">${esc(caseObj.title)}</h3><p class="subtitle" style="margin:0;max-width:none">${esc(stage.question)}</p></div>${tag(caseObj.num,'gold')}</div><div class="context"><strong>Gợi ý từ Bình</strong><p>Chọn nhiều đáp án nếu cần. Chỉ đánh dấu những bằng chứng thật sự giúp kiểm chứng giả thuyết.</p></div><div class="multi-select-grid">${stage.options.map((opt,i)=>`<button type="button" class="select-card ${selected.includes(i)?'on':''}" data-action="toggle-multi" data-index="${i}" aria-pressed="${selected.includes(i)}">${esc(opt.text)}</button>`).join('')}</div><div class="btn-row between"><div>${btn('Quay lại bước trước','prev-stage','outline')}</div><div>${btn('Đặt lại bước này','reset-stage','outline')} ${btn('Kiểm tra đáp án','check-stage','primary',selected.length?'':'disabled')} ${solved?btn('Hoàn thành case →','finish-case','primary'):''}</div></div>${multiFeedback(stage,st)}<div class="feedback positive" style="display:${solved&&st.checked?'block':'none'}"><strong>✓ Điểm chốt</strong><p>${esc(caseObj.summary)}</p></div></section><aside>${renderMap(caseObj.root,buildCaseBranches(caseObj,stage,st),'MINDMAP HIỆN TẠI')}</aside></div>`;
-}
-function multiFeedback(stage,st){
-  if(!st.checked) return '';
-  const selected=st.selected||[]; const correct=stage.options.filter((opt,i)=> selected.includes(i)===!!opt.correct).length;
-  return `<section class="review-card"><div class="review-head"><div><strong>Phản hồi từng lựa chọn</strong><p>Xem lại lý do cho từng bằng chứng.</p></div><span class="review-score">${correct}/${stage.options.length}</span></div><div class="review-items single-col">${stage.options.map((opt,i)=>`<article class="review-item ${selected.includes(i)===!!opt.correct?'right':'wrong'}"><span class="review-icon">${selected.includes(i)===!!opt.correct?'✓':'↻'}</span><div><strong>${esc(opt.text)}</strong><small><b>Bạn đã chọn:</b> ${selected.includes(i)?'Có':'Không'} · <b>Gợi ý:</b> ${opt.correct?'Nên chọn':'Không nên chọn'}</small><p>${esc(opt.why)}</p></div></article>`).join('')}</div></section>`;
+ const steps=C.module2Cases;
+ return shell('Module 2 — IPAM Way: Từ nhận diện đến làm chủ',
+ 'Khám phá mô hình IPAM Way theo bản chia sẻ mới nhất: Identify → Plan → Action → Mastery. Chọn từng nhánh trên MindMap để đọc nội dung.',
+ 'HỌC PHẦN 02 · TỔNG QUAN')+
+ `<section class="ipam-v212-why card"><span class="eyebrow">TƯ DUY LÀM VIỆC THEO MỤC TIÊU</span><h3>Từ việc của riêng mình đến giá trị chung của tổ chức</h3><p>Bản chia sẻ nhấn mạnh rằng làm chủ vai trò chuyên môn thôi chưa đủ: mỗi người cần nhìn thấy công việc của mình đóng góp như thế nào cho nhiệm vụ, mục tiêu và chuỗi giá trị tổ chức. IPAM Way là cách cùng nhận diện, lập kế hoạch, hành động và làm chủ hành trình thực thi.</p><div class="ipam-v212-cycle">${steps.map((x,i)=>`<span><b>${'IPAM'[i]}</b> ${esc(x.short)}</span>`).join('<span class="ipam-v212-cycle-arrow" aria-hidden="true">→</span>')}</div></section>
+ <div id="m2-overview" aria-label="MindMap 4 giai đoạn IPAM Way"></div>
+ <div class="ipam-v212-source"><strong>Về nội dung nguồn</strong><p>Biên soạn từ <i>phan1.ipamwayframework.pdf</i> (bản chép lời, 8 trang). Đây là bản diễn giải định hướng tư duy, không phải văn bản công bố danh sách 5A/5M chính thức. Một số thuật ngữ trong bản ghi có thể bị nhận dạng giọng nói sai.</p></div>`;
 }
 function caseView(){
- const obj=getCase(UI.caseId);if(!obj)return m2View();
- const c=getCurrentStage(obj);
- const L=obj.learning||{};
- return shell(`Case ${C.module2Cases.indexOf(obj)+1} — ${obj.title}`,obj.task,'MODULE 2 · IPAM WAY TRÊN MINDMAP')+
- `<section class="ipam-learning-intro"><div class="ipam-lead"><span class="eyebrow">${esc(L.model||'IPAM Way')}</span><h3>${esc(L.prompt||obj.title)}</h3><p>${esc(L.why||obj.intro)}</p></div><div class="ipam-context-short"><strong>Góc nhìn ứng dụng</strong><p>${esc(L.example||obj.intro)}</p><p class="ipam-source">Nguồn: ${esc(obj.sourcePages||'IPAM Way Framework v1.1')} · Các tình huống ứng dụng là ví dụ học tập.</p></div></section>
- <details class="ipam-learning-expand"><summary><span>📖 Đọc hiểu mô hình và kết quả cần đạt</span><span>Nhấn để mở / thu gọn</span></summary><div class="ipam-learning-body">${(L.sections||[]).map(([name,description])=>`<article><strong>${esc(name)}</strong><p>${esc(description)}</p></article>`).join('')}<div class="ipam-learning-output"><strong>Đầu ra theo khung IPAM Way</strong><p>${esc(L.outputs||'')}</p></div></div></details>
- <div class="ipam-learning-task"><span>✦</span><div><strong>THỬ NGAY TRÊN MINDMAP</strong><p>${esc(c.stage.title)} · ${esc(c.stage.instruction||obj.task)}</p></div></div><div id="case-mindmap"></div>`;
+ const obj=getCase(UI.caseId); if(!obj)return m2View();
+ const idx=C.module2Cases.indexOf(obj),previous=C.module2Cases[idx-1],next=C.module2Cases[idx+1];
+ return shell(obj.title,obj.tagline,`HỌC PHẦN 02 · ${obj.num} / 2.4`)+
+ `<section class="ipam-v212-lesson">
+ <div class="ipam-v212-lead"><div><span class="eyebrow">${esc(obj.short.toUpperCase())} · IPAM WAY</span><h3>${esc(obj.intro)}</h3><p>${esc(obj.why)}</p></div><div class="ipam-v212-stageletter" aria-hidden="true">${'IPAM'[idx]}</div></div>
+ <div class="ipam-v212-sectionheader"><span class="eyebrow">BỨC TRANH MINDMAP</span><h3>Các ý chính cần hiểu</h3><p>Quan sát cách các nội dung thuộc cùng một giai đoạn liên kết với nhau. Đây là phần đọc hiểu, không có bài tập hoặc chấm đáp án.</p></div>
+ <div class="ipam-v212-mindmap" role="group" aria-label="Nhánh tư duy ${esc(obj.short)}"><div class="ipam-v212-center"><small>GIAI ĐOẠN ${idx+1}</small><strong>${esc(obj.short)}</strong></div><div class="ipam-v212-branches">${obj.concepts.map(([term,definition],i)=>`<article class="ipam-v212-branch" style="--branch-index:${i}"><span class="ipam-v212-branch-title">${esc(term)}</span><p>${esc(definition)}</p></article>`).join('')}</div></div>
+ <div class="ipam-v212-sectionheader"><span class="eyebrow">GIẢI THÍCH THEO BẢN CHIA SẺ</span><h3>Hiểu sâu hơn về ${esc(obj.short)}</h3></div>
+ <div class="ipam-v212-reading">${obj.sections.map((sec,i)=>`<article class="ipam-v212-reading-card"><span class="ipam-v212-reading-index">${String(i+1).padStart(2,'0')}</span><div><h4>${esc(sec.title)}</h4><p>${esc(sec.text)}</p></div></article>`).join('')}</div>
+ <div class="ipam-v212-takeaway"><strong>Điểm chốt</strong><p>${esc(obj.takeaway)}</p></div>
+ <p class="ipam-v212-reference">Nguồn: ${esc(obj.source)} Diễn giải từ bản chép lời; những thuật ngữ chưa có danh sách đầy đủ không được tự bổ sung.</p>
+ <div class="btn-row between ipam-v212-nav"><div>${previous?btn('← '+previous.short,'read-prev','outline'):btn('← Tổng quan IPAM Way','open-m2','outline')}</div><div>${next?btn('Tiếp tục: '+next.short+' →','read-next','primary journey-cta'):btn('Tiếp tục Module 3 →','open-m3','primary journey-cta')}</div></div>
+ </section>`;
 }
-function m2CompleteView(){
-  const branches=C.module2Cases.map(c=>({name:c.title,children:[{text:c.summary,style:'correct'}]}));
-  return shell('Tổng kết IPAM Way — 4 giai đoạn','Sơ đồ ôn tập bốn giai đoạn Identify, Plan, Accountability, Management và các mô hình đi kèm.','HỌC PHẦN 02 · TỔNG KẾT')+
-  `<div class="card pad-lg"><div class="context"><strong>Chu trình IPAM Way</strong><p>Identify (5I / TAC) → Plan (5P / OTOOB) → Accountability (5A / RACI) → Management (5M) → quay lại Identify ở tầng tiếp theo. Sơ đồ giúp liên kết các giai đoạn thay vì học những thuật ngữ riêng lẻ.</p></div><div class="item-space">${renderMap('MindMap trong công việc',branches,'SƠ ĐỒ TỔNG KẾT MODULE 2')}</div><div class="btn-row end">${btn('Bài tiếp theo · Module 3 →','open-m3','primary journey-cta')}</div></div>`;
-}
+function m2CompleteView(){return m2View();}
 function m3View(){
   return shell('Module 3 — Học GitMind để thực hành trực tiếp','Khám phá nội dung bằng sơ đồ: mở nhánh để xem bài, cuộn chuột để phóng to/thu nhỏ và kéo vùng trống để di chuyển.','HỌC PHẦN 03 · HƯỚNG DẪN GITMIND')+
   `<section class="m3-hero card"><div class="m3-hero-bg" style="background-image:url('assets/images/gitmind-homepage.png')"></div><div class="m3-hero-overlay"></div><div class="m3-hero-content"><span class="eyebrow" style="color:var(--ipa-sand-light)">THỰC HÀNH TRỰC TIẾP</span><h2 style="margin:10px 0 12px;color:#fff">Mở GitMind và thực hành theo từng bài</h2><p style="color:#fff;max-width:700px">Truy cập GitMind, đăng nhập và thử thao tác trên giao diện thật. Bên dưới là mindmap 22 bài hướng dẫn tiếng Việt. Chọn một nhóm để khám phá từng bài.</p><div class="btn-row"><a class="primary external-link gitmind-attention" href="https://gitmind.com/" target="_blank" rel="noopener noreferrer">Truy cập GitMind ↗</a> ${btn('Bắt đầu bài 3.1 →','start-chapter','outline')}</div></div></section>
@@ -179,7 +118,7 @@ function chapterView(){
   const ch=G.find(x=>x.id===UI.chapter);if(!ch)return m3View();
   const i=G.findIndex(x=>x.id===ch.id),img=`assets/gitmind-chapters/${ch.image}`;
   return shell(`3.${i+1} · ${ch.title}`,'Quan sát ảnh động, đọc các bước và thực hành trực tiếp trên GitMind.','HỌC PHẦN 03 · HƯỚNG DẪN GITMIND')+
-  `<div class="guide-watch-layout guide-clean-layout"><section class="card guide-watch"><div class="guide-media-head"><span>${esc(ch.english||'GitMind')}</span>${tag(`Bài ${i+1}`,'gold')}</div><button class="guide-media guide-media-button" type="button" data-action="open-media" data-src="${esc(img)}" data-alt="${esc(ch.title)}"><img src="${esc(img)}" alt="GIF minh họa thao tác ${esc(ch.title)}"><span class="media-hint">Bấm vào GIF để phóng to</span></button><div class="btn-row">${btn('Truy cập GitMind ↗','open-gitmind','primary')}</div><div class="btn-row between guide-navigation"><div>${btn('← Bài trước','chapter-prev','outline',i===0?'disabled':'')}</div><div>${btn(i===G.length-1?'Về tổng quan Module 3 →':'Bài tiếp theo →','chapter-next','primary')}</div></div></section><section class="card guide-instruction"><div class="watch-heading">CÁC BƯỚC THAO TÁC</div><ol class="guide-steps" id="chapter-instructions">${(ch.steps||[]).map((step,j)=>`<li><span class="gm-step-no">${j+1}</span><div><strong>Bước ${j+1}</strong><p>${esc(step)}</p></div></li>`).join('')}</ol>${ch.topic?`<div class="guide-activity"><strong>Chủ đề thao tác</strong><p>${esc(ch.topic)}</p></div>`:''}${ch.objective?`<div class="guide-activity"><strong>Kết quả cần đạt</strong><p>${esc(ch.objective)}</p></div>`:''}<div class="guide-note"><strong>Gợi ý thực hành</strong><p>Mở <a href="https://gitmind.com/" target="_blank" rel="noopener noreferrer">GitMind</a> ở một tab khác để làm theo GIF.</p></div></section></div>`;
+  `<div class="guide-watch-layout guide-clean-layout"><section class="card guide-watch"><div class="guide-media-head"><span>${esc(ch.english||'GitMind')}</span>${tag(`Bài ${i+1}`,'gold')}</div><button class="guide-media guide-media-button" type="button" data-action="open-media" data-src="${esc(img)}" data-alt="${esc(ch.title)}"><img src="${esc(img)}" alt="GIF minh họa thao tác ${esc(ch.title)}"><span class="media-hint">Bấm vào GIF để phóng to</span></button><div class="btn-row">${btn('Truy cập GitMind ↗','open-gitmind','primary')}</div><div class="btn-row between guide-navigation"><div>${btn('← Bài trước','chapter-prev','outline',i===0?'disabled':'')}</div><div>${btn(i===G.length-1?'Về tổng quan Module 3 →':'Bài tiếp theo →','chapter-next','primary')}</div></div></section><section class="card guide-instruction"><div class="watch-heading">CÁC BƯỚC THAO TÁC</div><ol class="guide-steps" id="chapter-instructions">${(ch.steps||[]).map((step,j)=>`<li><span class="gm-step-no">${j+1}</span><div><strong>Bước ${j+1}</strong><p>${esc(step)}</p></div></li>`).join('')}</ol></section></div>`;
 }
 function render(){
   window.GitMindOverview?.destroy();
@@ -195,29 +134,13 @@ function render(){
     
     const items=[
       {id:'m1',title:'Vì sao & Khi nào',desc:'Video bài học và 5 câu hỏi tương tác · Ba bước Ghi nhận → Sắp xếp → Kết nối.'},
-      {id:'m2',title:'IPAM Way',desc:'4 giai đoạn · Identify, Plan, Accountability, Management · 8 hoạt động MindMap.'},
+      {id:'m2',title:'IPAM Way',desc:'4 giai đoạn · Identify, Plan, Action, Mastery · Học nội dung trên MindMap.'},
       {id:'m3',title:'Học GitMind',desc:'22 bài có GIF thao tác trên công cụ GitMind.'}
     ];
     window.LearningMaps?.overview($('#journey-map'),{items,title:'MindMap',subtitle:'Trong công việc',kind:'modules',onOpen:id=>navigate(id==='m1'?'m1video':id)});
   }
-  if(UI.page==='m2') window.LearningMaps?.overview($('#m2-overview'),{items:C.module2Cases.map(x=>({id:x.id,title:x.title,desc:x.task})),title:'IPAM Way',subtitle:'4 giai đoạn quản trị mục tiêu',kind:'cases',done:{},onOpen:goCase});
-  if(UI.page==='case'){
-    const obj=getCase(UI.caseId),c=getCurrentStage(obj),st=c.state;
-    window.LearningMaps?.mountCase($('#case-mindmap'),{
-      stage:c.stage,caseObj:obj,state:st,selected:UI.selectedCard,checked:!!st.checked,solved:stageSolved(c.stage,st),stepIndex:c.idx,stepCount:c.count,
-      onSelect:i=>{UI.selectedCard=i;window.LearningMaps?.refreshCase({selected:i});},
-      onPlace:(i,zone)=>{
-        const itemCount=c.stage.type==='multi'?c.stage.options.length:c.stage.cards.length;
-        if(i<0||i>=itemCount)return;
-        st.placements ||= {};
-        if(zone==='__bank__')delete st.placements[i];else st.placements[i]=zone;
-        if(c.stage.type==='multi')st.selected=Object.keys(st.placements).filter(k=>st.placements[k]==='Cần thu thập').map(Number);
-        st.checked=false;UI.selectedCard=null;save();window.LearningMaps?.refreshCase({selected:null,checked:false});
-      },
-      onCheck:()=>action('check-stage',{}),onReset:()=>action('reset-stage',{}),
-      onNext:()=>action('next-stage',{}),onPrev:()=>action('prev-stage',{}),onFinish:()=>action('finish-case',{})
-    });
-  }
+  if(UI.page==='m2') window.LearningMaps?.overview($('#m2-overview'),{items:C.module2Cases.map(x=>({id:x.id,title:x.short,desc:x.tagline})),title:'IPAM Way',subtitle:'4 giai đoạn quản trị mục tiêu',kind:'cases',done:{},onOpen:goCase});
+
 }
 function goCase(id){if(!getCase(id)) return; navigate('case',{state:{caseId:id}});}
 function goChapter(id){if(!G.find(x=>x.id===id))return;navigate('chapter',{state:{chapter:id}});}
@@ -240,32 +163,8 @@ function action(a,el){
     case 'chapter-prev': {const i=G.findIndex(x=>x.id===UI.chapter); if(i>0) goChapter(G[i-1].id); return;}
     case 'chapter-next':{const i=G.findIndex(x=>x.id===UI.chapter);if(i>=0&&i<G.length-1)goChapter(G[i+1].id);else navigate('m3');return;}
     case 'open-gitmind': openGitMind(); return;
-    case 'pick-card': UI.selectedCard = Number(el.dataset.index); render(); return;
-    case 'assign-zone': {
-      const caseObj=getCase(UI.caseId); const current=getCurrentStage(caseObj); if(UI.selectedCard===null) return message('Hãy chọn một thẻ trước');
-      current.state.placements[UI.selectedCard]=el.dataset.zone; current.state.checked=false; UI.selectedCard=null; save(); render(); return;
-    }
-    case 'reset-stage': {
-      const caseObj=getCase(UI.caseId); const current=getCurrentStage(caseObj);
-      current.state.placements={}; if(current.stage.type==='multi')current.state.selected=[];
-      current.state.checked=false; UI.selectedCard=null; save(); window.LearningMaps?.refreshCase({selected:null,checked:false}); return;
-    }
-    case 'check-stage': {
-      const caseObj=getCase(UI.caseId); const current=getCurrentStage(caseObj);
-      current.state.checked=true; save(); window.LearningMaps?.refreshCase({checked:true}); message(stageSolved(current.stage,current.state)?'Bạn đã sắp xếp đúng':'Đã có phản hồi để bạn chỉnh lại'); return;
-    }
-    case 'next-stage': {const caseObj=getCase(UI.caseId); const ls=labState(caseObj.id); ls.step=Math.min(ls.step+1, stageList(caseObj).length-1); save(); render(); return;}
-    case 'prev-stage': {const caseObj=getCase(UI.caseId); const ls=labState(caseObj.id); ls.step=Math.max(ls.step-1,0); save(); render(); return;}
-    case 'toggle-multi': {
-      const caseObj=getCase(UI.caseId); const current=getCurrentStage(caseObj); const i=Number(el.dataset.index); const arr=current.state.selected||[];
-      current.state.selected = arr.includes(i)?arr.filter(x=>x!==i):[...arr,i]; current.state.checked=false; save(); render(); return;
-    }
-    case 'finish-case': {
-      const caseObj=getCase(UI.caseId); if(!caseSolved(caseObj)||!getCurrentStage(caseObj).state.checked)return message('Bạn cần kiểm tra đúng các node trước khi hoàn thành.');markCaseComplete(caseObj); const idx=C.module2Cases.findIndex(x=>x.id===caseObj.id);
-      if(idx>=0 && idx < C.module2Cases.length-1){ const next=C.module2Cases[idx+1]; message('Đã hoàn thành '+caseObj.title); goCase(next.id); }
-      else navigate('m2-complete');
-      return;
-    }
+    case 'read-next': {const i=C.module2Cases.findIndex(x=>x.id===UI.caseId);if(i>=0&&i<C.module2Cases.length-1)goCase(C.module2Cases[i+1].id);return;}
+    case 'read-prev': {const i=C.module2Cases.findIndex(x=>x.id===UI.caseId);if(i>0)goCase(C.module2Cases[i-1].id);return;}
     case 'map-expand': openMap(el); return;
     case 'map-zoom': zoomMap(el,Number(el.dataset.delta)); return;
     case 'map-fit': zoomMap(el,0,true); return;
@@ -277,21 +176,13 @@ function setMenu(open){$('#sidebar').classList.toggle('open',open); $('#menu-scr
 function openMap(el){mapOpener=el; const panel=el.closest('.canvas-panel')||el.closest('.map-surface'); $('#expanded-map').innerHTML=panel.outerHTML; $('#expanded-map').querySelector('[data-action="map-expand"]')?.remove(); const d=$('#map-dialog'); if(typeof d.showModal==='function') d.showModal(); else d.setAttribute('open',''); document.body.classList.add('map-open'); $('#map-dialog [data-global-action="close-map"]').focus();}
 function closeMap(){const d=$('#map-dialog'); if(d?.open){if(typeof d.close==='function') d.close(); else d.removeAttribute('open');} document.body.classList.remove('map-open'); mapOpener?.focus(); mapOpener=null;}
 function zoomMap(el,delta,reset=false){const p=el.closest('.canvas-panel'); const z=p.querySelector('.zoom-content'); const scale=reset?1:Math.max(.55,Math.min(1.9,Number(z.dataset.scale||1)+delta)); z.dataset.scale=scale; z.style.zoom=String(scale); p.querySelector('[data-action="map-fit"]').textContent=Math.round(scale*100)+'%';}
-function openMedia(src,alt){const d=$('#media-dialog'); if(!d) return; mediaOpener=document.activeElement; $('#media-image').src=src; $('#media-image').alt=alt||''; const steps=$('#chapter-instructions');const enlarged=$('#media-dialog-steps');if(enlarged)enlarged.innerHTML=steps?steps.outerHTML:'<p>Đọc các bước hướng dẫn tại trang bài học.</p>'; $('#media-title').textContent=alt||'Phóng to minh họa'; if(typeof d.showModal==='function') d.showModal(); else d.setAttribute('open',''); document.body.classList.add('media-open');}
+function openMedia(src,alt){const d=$('#media-dialog');if(!d)return;mediaOpener=document.activeElement;$('#media-image').src=src;$('#media-image').alt=alt||'';$('#media-title').textContent=alt||'Phóng to minh họa';if(typeof d.showModal==='function')d.showModal();else d.setAttribute('open','');document.body.classList.add('media-open');}
 function closeMedia(){const d=$('#media-dialog'); if(d?.open){if(typeof d.close==='function') d.close(); else d.removeAttribute('open');} document.body.classList.remove('media-open'); mediaOpener?.focus(); mediaOpener=null;}
 $('#map-dialog').addEventListener('click',e=>{const el=e.target.closest('[data-action]'); if(el) action(el.dataset.action,el)});
 $('#map-dialog').addEventListener('close',()=>{document.body.classList.remove('map-open'); mapOpener?.focus(); mapOpener=null;});
 $('#media-dialog').addEventListener('click',e=>{if(e.target.matches('#media-dialog')) closeMedia(); const el=e.target.closest('[data-global-action]'); if(el?.dataset.globalAction==='close-media') closeMedia();});
 $('#media-dialog').addEventListener('close',()=>{document.body.classList.remove('media-open'); mediaOpener?.focus(); mediaOpener=null;});
 $('#screen').addEventListener('click',e=>{const el=e.target.closest('[data-action]'); if(el&&!el.disabled) action(el.dataset.action,el);});
-$('#screen').addEventListener('dragstart',e=>{if(e.target.closest('.lm-case-workspace'))return;const chip=e.target.closest('[data-draggable-card]'); if(!chip) return; UI.selectedCard=Number(chip.dataset.draggableCard); e.dataTransfer?.setData('text/plain','card:'+chip.dataset.draggableCard); e.dataTransfer.effectAllowed='move'; chip.classList.add('dragging');});
-$('#screen').addEventListener('dragover',e=>{if(e.target.closest('.lm-case-workspace'))return;const z=e.target.closest('[data-drop-zone]'); if(z){e.preventDefault(); z.classList.add('drag-over');}});
-$('#screen').addEventListener('dragleave',e=>{if(e.target.closest('.lm-case-workspace'))return;const z=e.target.closest('[data-drop-zone]'); if(z && !z.contains(e.relatedTarget)) z.classList.remove('drag-over');});
-$('#screen').addEventListener('drop',e=>{
-  if(e.target.closest('.lm-case-workspace'))return;
-  const zone=e.target.closest('[data-drop-zone]'); if(!zone) return; e.preventDefault(); zone.classList.remove('drag-over'); const raw=e.dataTransfer?.getData('text/plain')||''; const idx=raw.startsWith('card:')?Number(raw.slice(5)):UI.selectedCard; const caseObj=getCase(UI.caseId); if(!caseObj) return; const current=getCurrentStage(caseObj); if(!Number.isInteger(idx)) return;
-  if(zone.dataset.dropZone==='__bank__') delete current.state.placements[idx]; else current.state.placements[idx]=zone.dataset.dropZone; current.state.checked=false; UI.selectedCard=null; save(); render();
-});
 document.addEventListener('click',e=>{const a=e.target.closest('[data-global-action]'); if(!a) return; const v=a.dataset.globalAction;
   if(v==='close-map') return closeMap(); if(v==='close-media') return closeMedia(); if(v==='back') return back(); if(v==='toggle-nav'){UI.navOpen[a.dataset.id]=!UI.navOpen[a.dataset.id]; return renderNav();}
   if(v==='toggle-guide-group'){UI.guideGroups[a.dataset.id]=!(UI.guideGroups[a.dataset.id]!==false); return renderNav();}
