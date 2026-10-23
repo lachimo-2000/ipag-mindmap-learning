@@ -48,7 +48,7 @@ function view(ctx){const {P,UI,esc,btn,progress,tag,shell}=ctx,qi=UI.quizIndex,v
  }
  }
  if(qi===1){
- content=`<p class="quiz-instruction">Chọn một tên bước ở cột trái, sau đó chọn định nghĩa tương ứng ở cột phải. Bạn có thể nối lại trước khi kiểm tra.</p><div class="q-match-board" id="q-match-board"><svg class="q-match-lines" id="q-match-lines" aria-hidden="true"></svg><div class="q-match-col"><h4>Tên bước</h4>${defs.q2.names.map((x,i)=>`<button type="button" class="q-match-source ${v.active===i?'active':''}" data-action="quiz-match-source" data-value="${i}" aria-pressed="${v.active===i}"><span class="q-match-index">${i+1}</span><span>${esc(x)}</span><span class="q-match-dot" data-connect-source="${i}"></span></button>`).join('')}</div><div class="q-match-col"><h4>Định nghĩa (đã xáo trộn)</h4>${defs.q2.descs.map((x,i)=>`<button type="button" class="q-match-target" data-action="quiz-match-target" data-value="${i}" ${v.active===undefined?'aria-label="Chọn bước ở cột trái trước"':''}><span class="q-match-dot" data-connect-target="${i}"></span><span>${esc(x)}</span></button>`).join('')}</div></div>`;
+ content=`<p class="quiz-instruction">Giữ và kéo từ bước ở cột trái sang định nghĩa ở cột phải để nối. Hoặc bấm lần lượt vào hai cột (hỗ trợ bàn phím và điện thoại). Đường nối sẽ hiển thị ngay; bạn có thể nối lại trước khi kiểm tra.</p><div class="q-match-board" id="q-match-board"><svg class="q-match-lines" id="q-match-lines" aria-hidden="true"></svg><div class="q-match-col"><h4>Tên bước</h4>${defs.q2.names.map((x,i)=>`<button type="button" class="q-match-source q-match-draggable ${v.active===i?'active':''}" data-action="quiz-match-source" data-value="${i}" aria-pressed="${v.active===i}"><span class="q-match-index">${i+1}</span><span>${esc(x)}</span><span class="q-match-dot" data-connect-source="${i}"></span></button>`).join('')}</div><div class="q-match-col"><h4>Định nghĩa (đã xáo trộn)</h4>${defs.q2.descs.map((x,i)=>`<button type="button" class="q-match-target" data-action="quiz-match-target" data-value="${i}" ${v.active===undefined?'aria-label="Chọn bước ở cột trái trước"':''}><span class="q-match-dot" data-connect-target="${i}"></span><span>${esc(x)}</span></button>`).join('')}</div></div>`;
  if(v.submitted){content+=`<section class="q-feedback"><strong>${defs.q2.correct.filter((x,j)=>v.pairs?.[j]===x).length}/3 cặp đúng</strong><div class="q-explanations">${defs.q2.names.map((x,j)=>`<article class="q-explain ${v.pairs?.[j]===defs.q2.correct[j]?'correct':'incorrect'}"><b>${v.pairs?.[j]===defs.q2.correct[j]?'✓':'↻'} ${x}</b><p>Định nghĩa đúng: ${defs.q2.descs[defs.q2.correct[j]]}</p></article>`).join('')}</div><p class="note">Ba bước ở đây là cách diễn giải đơn giản trong bài học, không phải công thức bắt buộc cho mọi tình huống.</p></section>`;}
  }
  if(qi===2){
@@ -86,7 +86,7 @@ function handle(a,el,ctx){const {P,UI,save,render,message,navigate}=ctx,i=UI.qui
  case 'reset-quiz':P.quiz={};UI.quizIndex=0;UI.quizResult=false;done=true;break;
  default:return false;
  }
- if(done){save();render();document.querySelector('#quiz')?.scrollIntoView({block:'start',behavior:'smooth'});return true;}return false;
+ if(done){save();render();if(i!==1)document.querySelector('#quiz')?.scrollIntoView({block:'start',behavior:'smooth'});return true;}return false;
 }
 function drawConnections(){const board=document.querySelector('#q-match-board');if(!board)return;const svg=board.querySelector('#q-match-lines');if(!svg)return;
  const r=board.getBoundingClientRect();svg.setAttribute('viewBox',`0 0 ${r.width} ${r.height}`);svg.setAttribute('width',r.width);svg.setAttribute('height',r.height);
@@ -94,5 +94,57 @@ function drawConnections(){const board=document.querySelector('#q-match-board');
  const pairs=data.pairs||{},submitted=data.submitted;
  svg.innerHTML=Object.keys(pairs).map(k=>{const src=board.querySelector(`[data-connect-source="${k}"]`),dst=board.querySelector(`[data-connect-target="${pairs[k]}"]`);if(!src||!dst)return '';const a=src.getBoundingClientRect(),b=dst.getBoundingClientRect(),sx=a.left-r.left+a.width/2,sy=a.top-r.top+a.height/2,ex=b.left-r.left+b.width/2,ey=b.top-r.top+b.height/2,dx=(ex-sx)*.43;const correctness=submitted?(defs.q2.correct[Number(k)]===Number(pairs[k])?'line-right':'line-wrong'):'';return `<path class="q-link ${correctness}" d="M ${sx} ${sy} C ${sx+dx} ${sy}, ${ex-dx} ${ey}, ${ex} ${ey}"/>`;}).join('');
 }
-window.IPA_QUIZ={view,handle,finished,drawConnections,getCurrentState:state};
+function bindMatching({P,UI,render,save}){
+ const board=document.querySelector('#q-match-board');
+ if(!board||UI.quizIndex!==1||board.dataset.dragBound==='1')return;
+ board.dataset.dragBound='1';
+ const svg=board.querySelector('#q-match-lines');
+ let drag=null,preview=null;
+ const coords=(ev)=>{const r=board.getBoundingClientRect();return {x:ev.clientX-r.left,y:ev.clientY-r.top};};
+ const center=(el)=>{const b=el.getBoundingClientRect(),r=board.getBoundingClientRect();return {x:b.left-r.left+b.width/2,y:b.top-r.top+b.height/2};};
+ const path=(a,b)=>{const dx=(b.x-a.x)*.46;return `M ${a.x} ${a.y} C ${a.x+dx} ${a.y}, ${b.x-dx} ${b.y}, ${b.x} ${b.y}`;};
+ const down=e=>{
+   const button=e.target.closest('[data-action="quiz-match-source"]');
+   if(!button||P.quiz[1]?.submitted||e.button!==0)return;
+   drag={index:Number(button.dataset.value),pointer:e.pointerId,started:coords(e),moved:false};
+   const dot=button.querySelector('.q-match-dot');
+   const from=center(dot||button);
+   drag.from=from;
+   preview=document.createElementNS('http://www.w3.org/2000/svg','path');
+   preview.classList.add('q-link','q-link-preview');
+   preview.setAttribute('d',path(from,from));
+   svg.appendChild(preview);
+   button.classList.add('q-is-dragging');
+ };
+ const move=e=>{
+   if(!drag||e.pointerId!==drag.pointer)return;
+   const now=coords(e);
+   if(Math.hypot(now.x-drag.started.x,now.y-drag.started.y)>7){drag.moved=true;e.preventDefault();}
+   preview?.setAttribute('d',path(drag.from,now));
+   const hover=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-action="quiz-match-target"]');
+   board.querySelectorAll('.q-match-target').forEach(x=>x.classList.toggle('q-drop-hover',x===hover));
+ };
+ const up=e=>{
+   if(!drag||e.pointerId!==drag.pointer)return;
+   const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('[data-action="quiz-match-target"]');
+   const index=drag.index,moved=drag.moved;
+   drag=null;preview?.remove();preview=null;
+   board.querySelectorAll('.q-match-target').forEach(x=>x.classList.remove('q-drop-hover'));
+   board.querySelectorAll('.q-match-source').forEach(x=>x.classList.remove('q-is-dragging'));
+   if(!moved||!target||!board.contains(target))return;
+   const v=state(P,1),destination=Number(target.dataset.value);
+   v.pairs ||= {};
+   Object.keys(v.pairs).forEach(k=>{if(v.pairs[k]===destination&&Number(k)!==index)delete v.pairs[k];});
+   v.pairs[index]=destination;v.active=undefined;v.submitted=false;
+   save();render();
+ };
+ board.addEventListener('pointerdown',down);
+ document.addEventListener('pointermove',move);
+ document.addEventListener('pointerup',up);
+ document.addEventListener('pointercancel',up);
+ // Detached boards are cleaned up immediately after the next render.
+ const obs=new MutationObserver(()=>{if(board.isConnected)return;obs.disconnect();document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);document.removeEventListener('pointercancel',up);});
+ obs.observe(document.querySelector('#screen')||document.body,{childList:true,subtree:true});
+}
+window.IPA_QUIZ={view,handle,finished,drawConnections,bindMatching,getCurrentState:state};
 })();
